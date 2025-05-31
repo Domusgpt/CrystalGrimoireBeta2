@@ -177,77 +177,134 @@ class GemLogoPainter extends CustomPainter {
   }
 
   void _drawMainGem(Canvas canvas, Offset center, double radius) {
-    // Create teal to red gradient
-    final gradientPaint = Paint()
-      ..shader = LinearGradient(
-        colors: [
-          const Color(0xFF20B2AA), // Teal
-          const Color(0xFFFF4500), // Red-orange
-        ],
-        stops: const [0.3, 0.8],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ).createShader(Rect.fromCircle(center: center, radius: radius));
-
-    // Draw main hexagonal gem
-    final path = Path();
+    // Draw the exact hexagonal gem from the image
+    final gemPath = Path();
+    
+    // Create the main hexagon shape
     for (int i = 0; i < 6; i++) {
-      final angle = (i * 60) * math.pi / 180;
+      final angle = (i * 60 - 30) * math.pi / 180; // Start from top
       final x = center.dx + radius * math.cos(angle);
       final y = center.dy + radius * math.sin(angle);
       
       if (i == 0) {
-        path.moveTo(x, y);
+        gemPath.moveTo(x, y);
       } else {
-        path.lineTo(x, y);
+        gemPath.lineTo(x, y);
       }
     }
-    path.close();
+    gemPath.close();
+
+    // Left half - Teal
+    final leftHalfPaint = Paint()
+      ..color = const Color(0xFF20B2AA)
+      ..style = PaintingStyle.fill;
     
-    canvas.drawPath(path, gradientPaint);
+    final leftPath = Path();
+    leftPath.moveTo(center.dx, center.dy - radius); // Top
+    leftPath.lineTo(center.dx - radius * 0.866, center.dy - radius * 0.5); // Top left
+    leftPath.lineTo(center.dx - radius * 0.866, center.dy + radius * 0.5); // Bottom left
+    leftPath.lineTo(center.dx, center.dy + radius); // Bottom
+    leftPath.lineTo(center.dx, center.dy); // Center
+    leftPath.close();
     
-    // Add border for definition
-    final borderPaint = Paint()
-      ..color = Colors.white.withOpacity(0.8)
+    canvas.drawPath(leftPath, leftHalfPaint);
+
+    // Right half - Red
+    final rightHalfPaint = Paint()
+      ..color = const Color(0xFFFF4500)
+      ..style = PaintingStyle.fill;
+    
+    final rightPath = Path();
+    rightPath.moveTo(center.dx, center.dy - radius); // Top
+    rightPath.lineTo(center.dx + radius * 0.866, center.dy - radius * 0.5); // Top right
+    rightPath.lineTo(center.dx + radius * 0.866, center.dy + radius * 0.5); // Bottom right
+    rightPath.lineTo(center.dx, center.dy + radius); // Bottom
+    rightPath.lineTo(center.dx, center.dy); // Center
+    rightPath.close();
+    
+    canvas.drawPath(rightPath, rightHalfPaint);
+    
+    // Add the main outline
+    final outlinePaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
+    
+    canvas.drawPath(gemPath, outlinePaint);
+    
+    // Add the center dividing line
+    final centerLinePaint = Paint()
+      ..color = Colors.white
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
     
-    canvas.drawPath(path, borderPaint);
+    canvas.drawLine(
+      Offset(center.dx, center.dy - radius),
+      Offset(center.dx, center.dy + radius),
+      centerLinePaint,
+    );
   }
 
   void _drawFacets(Canvas canvas, Offset center, double radius) {
-    // Draw inner facets for 3D gem effect
+    // Draw the inner facet lines to match the image
     final facetPaint = Paint()
-      ..color = Colors.white.withOpacity(0.3)
+      ..color = Colors.white.withOpacity(0.6)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    // Top facet lines
+    canvas.drawLine(
+      Offset(center.dx - radius * 0.866, center.dy - radius * 0.5), // Top left
+      Offset(center.dx, center.dy), // Center
+      facetPaint,
+    );
+    
+    canvas.drawLine(
+      Offset(center.dx + radius * 0.866, center.dy - radius * 0.5), // Top right
+      Offset(center.dx, center.dy), // Center
+      facetPaint,
+    );
+
+    // Bottom facet lines
+    canvas.drawLine(
+      Offset(center.dx - radius * 0.866, center.dy + radius * 0.5), // Bottom left
+      Offset(center.dx, center.dy), // Center
+      facetPaint,
+    );
+    
+    canvas.drawLine(
+      Offset(center.dx + radius * 0.866, center.dy + radius * 0.5), // Bottom right
+      Offset(center.dx, center.dy), // Center
+      facetPaint,
+    );
+
+    // Add subtle highlight on the left teal side
+    final leftHighlight = Paint()
+      ..color = Colors.white.withOpacity(0.3 + shimmerValue * 0.2)
       ..style = PaintingStyle.fill;
-
-    // Top facet (lighter)
-    final topFacet = Path()
+    
+    final leftHighlightPath = Path()
       ..moveTo(center.dx, center.dy - radius)
-      ..lineTo(center.dx - radius * 0.5, center.dy - radius * 0.3)
-      ..lineTo(center.dx + radius * 0.5, center.dy - radius * 0.3)
+      ..lineTo(center.dx - radius * 0.4, center.dy - radius * 0.5)
+      ..lineTo(center.dx - radius * 0.2, center.dy)
+      ..lineTo(center.dx, center.dy)
       ..close();
     
-    canvas.drawPath(topFacet, facetPaint);
+    canvas.drawPath(leftHighlightPath, leftHighlight);
 
-    // Left facet
-    final leftFacet = Path()
-      ..moveTo(center.dx - radius * 0.9, center.dy)
-      ..lineTo(center.dx - radius * 0.3, center.dy - radius * 0.3)
-      ..lineTo(center.dx - radius * 0.3, center.dy + radius * 0.3)
+    // Add subtle highlight on the right red side
+    final rightHighlight = Paint()
+      ..color = Colors.white.withOpacity(0.2 + shimmerValue * 0.3)
+      ..style = PaintingStyle.fill;
+    
+    final rightHighlightPath = Path()
+      ..moveTo(center.dx, center.dy - radius)
+      ..lineTo(center.dx + radius * 0.4, center.dy - radius * 0.5)
+      ..lineTo(center.dx + radius * 0.2, center.dy)
+      ..lineTo(center.dx, center.dy)
       ..close();
     
-    canvas.drawPath(leftFacet, facetPaint..color = Colors.white.withOpacity(0.2));
-
-    // Right facet (highlight based on shimmer)
-    final rightFacet = Path()
-      ..moveTo(center.dx + radius * 0.9, center.dy)
-      ..lineTo(center.dx + radius * 0.3, center.dy - radius * 0.3)
-      ..lineTo(center.dx + radius * 0.3, center.dy + radius * 0.3)
-      ..close();
-    
-    final shimmerOpacity = 0.1 + (shimmerValue * 0.4);
-    canvas.drawPath(rightFacet, facetPaint..color = Colors.white.withOpacity(shimmerOpacity));
+    canvas.drawPath(rightHighlightPath, rightHighlight);
   }
 
   void _drawShimmerEffect(Canvas canvas, Offset center, double radius) {
