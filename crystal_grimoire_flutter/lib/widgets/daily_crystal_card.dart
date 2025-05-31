@@ -16,65 +16,29 @@ class DailyCrystalCard extends StatefulWidget {
 }
 
 class _DailyCrystalCardState extends State<DailyCrystalCard> 
-    with TickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  late AnimationController _sparkleController;
-  late AnimationController _glowController;
   late Animation<double> _scaleAnimation;
-  late Animation<double> _sparkleAnimation;
-  late Animation<double> _glowAnimation;
   late CrystalData _dailyCrystal;
   late Map<String, dynamic> _reading;
 
   @override
   void initState() {
     super.initState();
-    
-    // Main pulsing animation
     _animationController = AnimationController(
-      duration: const Duration(seconds: 3),
-      vsync: this,
-    );
-    
-    // Sparkle/shimmer animation
-    _sparkleController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     );
     
-    // Glow intensity animation
-    _glowController = AnimationController(
-      duration: const Duration(seconds: 4),
-      vsync: this,
-    );
-    
     _scaleAnimation = Tween<double>(
-      begin: 0.98,
-      end: 1.02,
+      begin: 0.95,
+      end: 1.0,
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeInOut,
     ));
     
-    _sparkleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _sparkleController,
-      curve: Curves.easeInOut,
-    ));
-    
-    _glowAnimation = Tween<double>(
-      begin: 0.6,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _glowController,
-      curve: Curves.easeInOut,
-    ));
-    
     _animationController.repeat(reverse: true);
-    _sparkleController.repeat();
-    _glowController.repeat(reverse: true);
     
     _dailyCrystal = OfflineCrystalService.getDailyCrystal();
     _reading = OfflineCrystalService.generateReading();
@@ -83,8 +47,6 @@ class _DailyCrystalCardState extends State<DailyCrystalCard>
   @override
   void dispose() {
     _animationController.dispose();
-    _sparkleController.dispose();
-    _glowController.dispose();
     super.dispose();
   }
 
@@ -93,25 +55,18 @@ class _DailyCrystalCardState extends State<DailyCrystalCard>
     return GestureDetector(
       onTap: () => _showDailyReading(context),
       child: AnimatedBuilder(
-        animation: Listenable.merge([_scaleAnimation, _sparkleAnimation, _glowAnimation]),
+        animation: _scaleAnimation,
         builder: (context, child) {
           return Transform.scale(
             scale: _scaleAnimation.value,
-            child: Container(
-              // Make card 25% larger as specified
-              padding: const EdgeInsets.all(4),
-              child: Stack(
-                children: [
-                  // Main card
-                  EnhancedMysticalCard(
+            child: EnhancedMysticalCard(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  CrystalGrimoireTheme.celestialGold.withOpacity(0.3 * _glowAnimation.value),
-                  const Color(0xFF20B2AA).withOpacity(0.4 * _glowAnimation.value), // Teal from gem logo
-                  CrystalGrimoireTheme.mysticPurple.withOpacity(0.5 * _glowAnimation.value),
-                  CrystalGrimoireTheme.royalPurple.withOpacity(0.7 * _glowAnimation.value),
+                  CrystalGrimoireTheme.celestialGold.withOpacity(0.2),
+                  CrystalGrimoireTheme.mysticPurple.withOpacity(0.4),
+                  CrystalGrimoireTheme.royalPurple.withOpacity(0.6),
                 ],
               ),
               isGlowing: true,
@@ -239,21 +194,6 @@ class _DailyCrystalCardState extends State<DailyCrystalCard>
                         ),
                       ),
                     ],
-                  ),
-                ],
-              ),
-            ),
-                  
-                  // Ammolite sparkle effect overlay
-                  Positioned.fill(
-                    child: IgnorePointer(
-                      child: CustomPaint(
-                        painter: AmmoliteSparklesPainter(
-                          progress: _sparkleAnimation.value,
-                          intensity: _glowAnimation.value,
-                        ),
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -633,116 +573,4 @@ class _DailyCrystalCardState extends State<DailyCrystalCard>
       default: return CrystalGrimoireTheme.mysticPurple;
     }
   }
-}
-
-// Custom painter for ammolite/diamond sparkle effects
-class AmmoliteSparklesPainter extends CustomPainter {
-  final double progress;
-  final double intensity;
-  
-  AmmoliteSparklesPainter({
-    required this.progress,
-    required this.intensity,
-  });
-  
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..style = PaintingStyle.fill;
-    
-    final center = Offset(size.width / 2, size.height / 2);
-    final random = math.Random(42); // Fixed seed for consistent pattern
-    
-    // Draw ammolite-style shimmering particles
-    for (int i = 0; i < 15; i++) {
-      final angle = (i * 24 + progress * 360) * math.pi / 180;
-      final distance = 30 + random.nextDouble() * (size.width * 0.3);
-      final sparkleSize = 2 + random.nextDouble() * 4;
-      
-      final x = center.dx + distance * math.cos(angle);
-      final y = center.dy + distance * math.sin(angle);
-      
-      // Cycle through ammolite colors
-      final colorIndex = (progress * 3 + i * 0.3) % 1.0;
-      Color sparkleColor;
-      
-      if (colorIndex < 0.33) {
-        sparkleColor = Color.lerp(
-          const Color(0xFF20B2AA), // Teal
-          const Color(0xFFFF4500), // Red-orange
-          (colorIndex / 0.33),
-        )!;
-      } else if (colorIndex < 0.66) {
-        sparkleColor = Color.lerp(
-          const Color(0xFFFF4500), // Red-orange
-          const Color(0xFFFFD700), // Gold
-          ((colorIndex - 0.33) / 0.33),
-        )!;
-      } else {
-        sparkleColor = Color.lerp(
-          const Color(0xFFFFD700), // Gold
-          const Color(0xFF20B2AA), // Teal
-          ((colorIndex - 0.66) / 0.34),
-        )!;
-      }
-      
-      final opacity = math.sin(progress * math.pi * 2 + i * 0.5) * 0.5 + 0.5;
-      paint.color = sparkleColor.withOpacity(opacity * intensity * 0.8);
-      
-      // Draw diamond-shaped sparkle
-      final sparklePath = Path()
-        ..moveTo(x, y - sparkleSize)
-        ..lineTo(x + sparkleSize * 0.6, y)
-        ..lineTo(x, y + sparkleSize)
-        ..lineTo(x - sparkleSize * 0.6, y)
-        ..close();
-      
-      canvas.drawPath(sparklePath, paint);
-      
-      // Add center highlight
-      paint.color = Colors.white.withOpacity(opacity * intensity * 0.6);
-      canvas.drawCircle(Offset(x, y), sparkleSize * 0.3, paint);
-    }
-    
-    // Add central faceted crystal reflection
-    final reflectionPaint = Paint()
-      ..color = Colors.white.withOpacity(0.3 * intensity)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    
-    final reflectionSize = 60 + intensity * 20;
-    final reflectionPath = Path();
-    
-    // Create hexagonal faceted pattern
-    for (int i = 0; i < 6; i++) {
-      final angle = (i * 60 + progress * 30) * math.pi / 180;
-      final x = center.dx + reflectionSize * math.cos(angle);
-      final y = center.dy + reflectionSize * math.sin(angle);
-      
-      if (i == 0) {
-        reflectionPath.moveTo(x, y);
-      } else {
-        reflectionPath.lineTo(x, y);
-      }
-    }
-    reflectionPath.close();
-    
-    canvas.drawPath(reflectionPath, reflectionPaint);
-    
-    // Add internal facet lines
-    for (int i = 0; i < 6; i++) {
-      final angle = (i * 60 + progress * 30) * math.pi / 180;
-      final x = center.dx + reflectionSize * math.cos(angle);
-      final y = center.dy + reflectionSize * math.sin(angle);
-      
-      canvas.drawLine(
-        center,
-        Offset(x, y),
-        reflectionPaint..strokeWidth = 1,
-      );
-    }
-  }
-  
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

@@ -81,34 +81,61 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF0A0A1F), // Deep midnight blue
-                  Color(0xFF1A0A2F), // Purple-tinted dark
-                  Color(0xFF0F0F23), // Original dark
+                  Color(0xFF0D0221), // Deep mystical purple-black
+                  Color(0xFF1A0B2E), // Dark violet
+                  Color(0xFF16213E), // Midnight blue
                 ],
-                stops: [0.0, 0.5, 1.0],
               ),
             ),
           ),
           
-          // Enhanced floating particles with multiple layers
-          Stack(
-            children: [
-              FloatingParticles(
-                particleCount: 20,
-                color: Colors.purpleAccent.withOpacity(0.3),
-                speed: 0.5,
-              ),
-              FloatingParticles(
-                particleCount: 10,
-                color: Colors.cyanAccent.withOpacity(0.2),
-                speed: 0.8,
-              ),
-              FloatingParticles(
-                particleCount: 5,
-                color: Colors.amberAccent.withOpacity(0.2),
-                speed: 1.2,
-              ),
-            ],
+          // Animated crystal particles
+          const FloatingParticles(
+            particleCount: 20,
+            color: Color(0xFF9D4EDD),
+          ),
+          
+          // Additional floating crystals
+          Positioned(
+            top: 100,
+            left: -50,
+            child: AnimatedBuilder(
+              animation: _floatAnimation,
+              builder: (context, child) {
+                return Transform.translate(
+                  offset: Offset(0, _floatAnimation.value),
+                  child: Opacity(
+                    opacity: 0.3,
+                    child: Icon(
+                      Icons.diamond,
+                      size: 100,
+                      color: Color(0xFF7B2CBF),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          
+          Positioned(
+            bottom: 150,
+            right: -30,
+            child: AnimatedBuilder(
+              animation: _floatAnimation,
+              builder: (context, child) {
+                return Transform.translate(
+                  offset: Offset(0, -_floatAnimation.value * 0.8),
+                  child: Opacity(
+                    opacity: 0.2,
+                    child: Icon(
+                      Icons.hexagon,
+                      size: 120,
+                      color: Color(0xFF9D4EDD),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
           
           // Main content
@@ -117,36 +144,45 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
               opacity: _fadeAnimation,
               child: CustomScrollView(
                 slivers: [
-                  // Enhanced header with custom logo and title
+                  // App header with animated logo
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Column(
                         children: [
-                          // Animated custom crystal logo
+                          // Crystal Logo with glow effect
                           FadeScaleIn(
                             delay: const Duration(milliseconds: 200),
-                            child: AnimatedBuilder(
-                              animation: _floatAnimation,
-                              builder: (context, child) {
-                                return Transform.translate(
-                                  offset: Offset(0, _floatAnimation.value),
-                                  child: const AnimatedCrystalLogo(size: 100),
-                                );
-                              },
+                            child: Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Color(0xFF9D4EDD).withOpacity(0.6),
+                                    blurRadius: 30,
+                                    spreadRadius: 10,
+                                  ),
+                                ],
+                              ),
+                              child: CustomPaint(
+                                painter: CrystalLogoPainter(),
+                              ),
                             ),
                           ),
+                          
                           const SizedBox(height: 20),
                           
-                          // Enhanced app title with gradient and custom font
+                          // Shimmering title
                           FadeScaleIn(
                             delay: const Duration(milliseconds: 400),
                             child: ShaderMask(
                               shaderCallback: (bounds) => LinearGradient(
                                 colors: [
-                                  Color(0xFF9C27B0), // Purple
-                                  Color(0xFF00BCD4), // Teal
-                                  Color(0xFFFF5722), // Orange
+                                  Color(0xFFE0AAFF),
+                                  Color(0xFFC77DFF),
+                                  Color(0xFF9D4EDD),
                                 ],
                                 stops: [0.0, 0.5, 1.0],
                               ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
@@ -274,34 +310,104 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
                     ),
                   ),
                   
-                  // Daily Crystal Card - moved down and integrated better
+                  // Daily Insight Cards
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      padding: const EdgeInsets.all(20.0),
                       child: FadeScaleIn(
                         delay: const Duration(milliseconds: 1400),
-                        child: _buildDailyCrystalCard(context, theme),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Daily Insights',
+                              style: GoogleFonts.poppins(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            Container(
+                              padding: EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color(0xFF240046).withOpacity(0.8),
+                                    Color(0xFF3C096C).withOpacity(0.6),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: Color(0xFF7209B7).withOpacity(0.3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.nights_stay,
+                                        color: Color(0xFFE0AAFF),
+                                        size: 28,
+                                      ),
+                                      SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Moon Phase',
+                                              style: TextStyle(
+                                                color: Color(0xFFE0AAFF),
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                            Text(
+                                              _getCurrentMoonPhase(),
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 16),
+                                  Row(
+                                    children: [
+                                      _buildDailyInsightChip(
+                                        icon: Icons.favorite,
+                                        label: 'Love Energy',
+                                        color: Colors.pink,
+                                      ),
+                                      SizedBox(width: 8),
+                                      _buildDailyInsightChip(
+                                        icon: Icons.bolt,
+                                        label: '${_getElement()} Element',
+                                        color: Colors.orange,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                   
-                  // Daily Spiritual Section
+                  // Usage Card
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: FadeScaleIn(
                         delay: const Duration(milliseconds: 1500),
-                        child: _buildDailySpiritualSection(context, theme),
-                      ),
-                    ),
-                  ),
-                  
-                  // Usage stats with better design
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: FadeScaleIn(
-                        delay: const Duration(milliseconds: 1600),
                         child: _buildEnhancedUsageCard(context, appState, theme),
                       ),
                     ),
@@ -309,135 +415,40 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
                   
                   // Bottom padding
                   const SliverToBoxAdapter(
-                    child: SizedBox(height: 80),
+                    child: SizedBox(height: 100),
                   ),
                 ],
               ),
             ),
           ),
-        ],
-      ),
-      
-      // Enhanced floating action button
-      floatingActionButton: FadeScaleIn(
-        delay: const Duration(milliseconds: 1700),
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFF00BCD4),
-                Color(0xFF9C27B0),
-              ],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Color(0xFF00BCD4).withOpacity(0.4),
-                blurRadius: 20,
-                offset: Offset(0, 5),
-              ),
-            ],
-          ),
-          child: FloatingActionButton(
-            onPressed: () => _navigateToIdentify(context),
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            child: Icon(Icons.add_a_photo, color: Colors.white, size: 28),
-          ),
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildDailyCrystalCard(BuildContext context, ThemeData theme) {
-    final crystals = ['Amethyst', 'Rose Quartz', 'Clear Quartz', 'Citrine', 'Black Tourmaline'];
-    final crystal = crystals[DateTime.now().day % crystals.length];
-    
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.purple.withOpacity(0.3),
-            Colors.deepPurple.withOpacity(0.4),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.purpleAccent.withOpacity(0.5),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.auto_awesome, color: Colors.amber, size: 24),
-              SizedBox(width: 8),
-              Text(
-                'Crystal of the Day',
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.amber,
+          
+          // Enhanced floating action button
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: FadeScaleIn(
+              delay: const Duration(milliseconds: 1600),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF7209B7), Color(0xFF560BAD)],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFF7209B7).withOpacity(0.5),
+                      blurRadius: 20,
+                      offset: Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: FloatingActionButton(
+                  onPressed: () => _navigateToSettings(context),
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  child: Icon(Icons.settings, color: Colors.white),
                 ),
               ),
-            ],
-          ),
-          SizedBox(height: 12),
-          Text(
-            crystal,
-            style: GoogleFonts.cinzel(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            _getCrystalMessage(crystal),
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.white.withOpacity(0.8),
-            ),
-          ),
-          SizedBox(height: 12),
-          Row(
-            children: [
-              _buildCrystalProperty('Protection', Icons.shield),
-              SizedBox(width: 16),
-              _buildCrystalProperty('Healing', Icons.favorite),
-              SizedBox(width: 16),
-              _buildCrystalProperty('Clarity', Icons.visibility),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildCrystalProperty(String label, IconData icon) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.3),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: Colors.white70, size: 16),
-          SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
             ),
           ),
         ],
@@ -445,95 +456,10 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
     );
   }
   
-  String _getCrystalMessage(String crystal) {
-    final messages = {
-      'Amethyst': 'Enhances intuition and spiritual connection',
-      'Rose Quartz': 'Opens the heart to unconditional love',
-      'Clear Quartz': 'Amplifies energy and clarifies thoughts',
-      'Citrine': 'Attracts abundance and positive energy',
-      'Black Tourmaline': 'Provides protection and grounding',
-    };
-    return messages[crystal] ?? 'Discover the magic within';
-  }
-  
-  Widget _buildDailySpiritualSection(BuildContext context, ThemeData theme) {
-    final spiritualMessages = [
-      "The universe speaks through crystal vibrations today",
-      "Your intuition is heightened under the current lunar phase",
-      "Trust the crystals that call to you - they have messages",
-      "Today's energy supports deep healing and transformation",
-      "The veil between worlds is thin - perfect for crystal work",
-    ];
-    
-    final dailyMessage = spiritualMessages[DateTime.now().day % spiritualMessages.length];
-    final moonPhase = _getCurrentMoonPhase();
-    final numerologyNumber = (DateTime.now().day % 9) + 1;
-    
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.deepPurple.withOpacity(0.3),
-            Colors.indigo.withOpacity(0.2),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.purpleAccent.withOpacity(0.3),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Icon(Icons.stars, color: Colors.amberAccent, size: 24),
-              SizedBox(width: 8),
-              Text(
-                'Daily Spiritual Guidance',
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.amberAccent,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
-          Text(
-            dailyMessage,
-            style: GoogleFonts.raleway(
-              fontSize: 16,
-              fontStyle: FontStyle.italic,
-              color: Colors.white.withOpacity(0.9),
-              height: 1.5,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildDailyInsightChip(
-                icon: Icons.nightlight_round,
-                label: moonPhase,
-                color: Colors.blue,
-              ),
-              _buildDailyInsightChip(
-                icon: Icons.looks_one,
-                label: 'Number $numerologyNumber',
-                color: Colors.purple,
-              ),
-              _buildDailyInsightChip(
-                icon: Icons.local_fire_department,
-                label: _getElement(),
-                color: Colors.orange,
-              ),
-            ],
-          ),
-        ],
-      ),
+  void _navigateToSettings(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SettingsScreen()),
     );
   }
   
@@ -851,8 +777,10 @@ class _EnhancedCrystalIdentificationCardState extends State<_EnhancedCrystalIden
       builder: (context, child) {
         return Transform.scale(
           scale: _pulseAnimation.value,
-          child: Container(
-            height: 120, // Taller for more prominence
+          child: Stack(
+            children: [
+              Container(
+            height: 150, // 25% larger for more prominence
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
               gradient: LinearGradient(
@@ -1012,6 +940,20 @@ class _EnhancedCrystalIdentificationCardState extends State<_EnhancedCrystalIden
                 ),
               ],
             ),
+              ),
+              
+              // Ammolite sparkle effect overlay (moved from Crystal of the Day)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: CustomPaint(
+                    painter: AmmoliteSparklesPainter(
+                      progress: _shimmerAnimation.value,
+                      intensity: 1.0,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },
@@ -1195,4 +1137,116 @@ class FeatureCard extends StatelessWidget {
       ),
     );
   }
+}
+
+// Custom painter for ammolite/diamond sparkle effects
+class AmmoliteSparklesPainter extends CustomPainter {
+  final double progress;
+  final double intensity;
+  
+  AmmoliteSparklesPainter({
+    required this.progress,
+    required this.intensity,
+  });
+  
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..style = PaintingStyle.fill;
+    
+    final center = Offset(size.width / 2, size.height / 2);
+    final random = math.Random(42); // Fixed seed for consistent pattern
+    
+    // Draw ammolite-style shimmering particles
+    for (int i = 0; i < 15; i++) {
+      final angle = (i * 24 + progress * 360) * math.pi / 180;
+      final distance = 30 + random.nextDouble() * (size.width * 0.3);
+      final sparkleSize = 2 + random.nextDouble() * 4;
+      
+      final x = center.dx + distance * math.cos(angle);
+      final y = center.dy + distance * math.sin(angle);
+      
+      // Cycle through ammolite colors
+      final colorIndex = (progress * 3 + i * 0.3) % 1.0;
+      Color sparkleColor;
+      
+      if (colorIndex < 0.33) {
+        sparkleColor = Color.lerp(
+          const Color(0xFF20B2AA), // Teal
+          const Color(0xFFFF4500), // Red-orange
+          (colorIndex / 0.33),
+        )!;
+      } else if (colorIndex < 0.66) {
+        sparkleColor = Color.lerp(
+          const Color(0xFFFF4500), // Red-orange
+          const Color(0xFFFFD700), // Gold
+          ((colorIndex - 0.33) / 0.33),
+        )!;
+      } else {
+        sparkleColor = Color.lerp(
+          const Color(0xFFFFD700), // Gold
+          const Color(0xFF20B2AA), // Teal
+          ((colorIndex - 0.66) / 0.34),
+        )!;
+      }
+      
+      final opacity = math.sin(progress * math.pi * 2 + i * 0.5) * 0.5 + 0.5;
+      paint.color = sparkleColor.withOpacity(opacity * intensity * 0.8);
+      
+      // Draw diamond-shaped sparkle
+      final sparklePath = Path()
+        ..moveTo(x, y - sparkleSize)
+        ..lineTo(x + sparkleSize * 0.6, y)
+        ..lineTo(x, y + sparkleSize)
+        ..lineTo(x - sparkleSize * 0.6, y)
+        ..close();
+      
+      canvas.drawPath(sparklePath, paint);
+      
+      // Add center highlight
+      paint.color = Colors.white.withOpacity(opacity * intensity * 0.6);
+      canvas.drawCircle(Offset(x, y), sparkleSize * 0.3, paint);
+    }
+    
+    // Add central faceted crystal reflection
+    final reflectionPaint = Paint()
+      ..color = Colors.white.withOpacity(0.3 * intensity)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    
+    final reflectionSize = 60 + intensity * 20;
+    final reflectionPath = Path();
+    
+    // Create hexagonal faceted pattern
+    for (int i = 0; i < 6; i++) {
+      final angle = (i * 60 + progress * 30) * math.pi / 180;
+      final x = center.dx + reflectionSize * math.cos(angle);
+      final y = center.dy + reflectionSize * math.sin(angle);
+      
+      if (i == 0) {
+        reflectionPath.moveTo(x, y);
+      } else {
+        reflectionPath.lineTo(x, y);
+      }
+    }
+    reflectionPath.close();
+    
+    canvas.drawPath(reflectionPath, reflectionPaint);
+    
+    // Add internal facet lines
+    for (int i = 0; i < 6; i++) {
+      final angle = (i * 60 + progress * 30) * math.pi / 180;
+      final x = center.dx + reflectionSize * math.cos(angle);
+      final y = center.dy + reflectionSize * math.sin(angle);
+      
+      canvas.drawLine(
+        center,
+        Offset(x, y),
+        reflectionPaint..strokeWidth = 1,
+      );
+    }
+  }
+  
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
