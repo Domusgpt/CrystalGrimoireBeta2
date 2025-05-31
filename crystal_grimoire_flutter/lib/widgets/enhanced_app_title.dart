@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import '../config/enhanced_theme.dart';
 import 'gem_symbol_logo.dart';
+import 'teal_red_gem_logo.dart';
 
 class EnhancedAppTitle extends StatefulWidget {
   final double fontSize;
@@ -77,94 +78,37 @@ class _EnhancedAppTitleState extends State<EnhancedAppTitle>
     return Stack(
       alignment: Alignment.center,
       children: [
-        // Main content in a column
+        // Main content - NEW GEM LOGO
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Animated title
+            // NEW: Teal/Red Gem Logo (replaces text)
+            TealRedGemLogo(
+              size: widget.fontSize * 1.5, // Make it prominent
+              animate: true,
+            ),
+            
+            const SizedBox(height: 8),
+            
+            // Subtle app name below logo
             AnimatedBuilder(
-              animation: Listenable.merge([_pulseAnimation, _colorAnimation]),
+              animation: _colorAnimation,
               builder: (context, child) {
-                return Transform.scale(
-                  scale: _pulseAnimation.value,
-                  child: ShaderMask(
-                    shaderCallback: (bounds) => LinearGradient(
-                      colors: [
-                        _colorAnimation.value!,
-                        CrystalGrimoireTheme.mysticPurple,
-                        CrystalGrimoireTheme.cosmicViolet,
-                        _colorAnimation.value!,
-                      ],
-                      stops: const [0.0, 0.3, 0.7, 1.0],
-                    ).createShader(bounds),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Outer glow effect - much more dramatic
-                        Text(
-                          'Crystal Grimoire',
-                          style: TextStyle(
-                            fontSize: widget.fontSize,
-                            fontWeight: FontWeight.w900,
-                            fontFamily: 'serif',
-                            letterSpacing: 4.0,
-                            foreground: Paint()
-                              ..style = PaintingStyle.stroke
-                              ..strokeWidth = 8
-                              ..color = _colorAnimation.value!.withOpacity(0.8)
-                              ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 30),
-                          ),
-                        ),
-                        // Middle glow
-                        Text(
-                          'Crystal Grimoire',
-                          style: TextStyle(
-                            fontSize: widget.fontSize,
-                            fontWeight: FontWeight.w900,
-                            fontFamily: 'serif',
-                            letterSpacing: 4.0,
-                            foreground: Paint()
-                              ..style = PaintingStyle.stroke
-                              ..strokeWidth = 4
-                              ..color = Colors.white.withOpacity(0.9)
-                              ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 15),
-                          ),
-                        ),
-                        // Main text with dramatic shadows
-                        Text(
-                          'Crystal Grimoire',
-                          style: TextStyle(
-                            fontSize: widget.fontSize,
-                            fontWeight: FontWeight.w900,
-                            fontFamily: 'serif',
-                            letterSpacing: 4.0,
-                            color: Colors.white,
-                            shadows: [
-                              Shadow(
-                                color: _colorAnimation.value!,
-                                blurRadius: 25,
-                                offset: const Offset(0, 3),
-                              ),
-                              Shadow(
-                                color: CrystalGrimoireTheme.amethyst.withOpacity(0.8),
-                                blurRadius: 15,
-                                offset: const Offset(-2, -2),
-                              ),
-                              Shadow(
-                                color: CrystalGrimoireTheme.celestialGold.withOpacity(0.6),
-                                blurRadius: 10,
-                                offset: const Offset(2, 2),
-                              ),
-                              const Shadow(
-                                color: CrystalGrimoireTheme.deepSpace,
-                                blurRadius: 5,
-                                offset: Offset(0, 6),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                return Text(
+                  'Crystal Grimoire',
+                  style: TextStyle(
+                    fontSize: widget.fontSize * 0.4, // Much smaller than before
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'serif',
+                    letterSpacing: 2.0,
+                    color: Colors.white.withOpacity(0.9),
+                    shadows: [
+                      Shadow(
+                        color: _colorAnimation.value!.withOpacity(0.6),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                 );
               },

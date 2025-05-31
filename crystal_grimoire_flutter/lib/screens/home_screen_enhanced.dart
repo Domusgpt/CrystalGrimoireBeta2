@@ -182,56 +182,31 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
                     ),
                   ),
                   
-                  // Main action button
+                  // Enhanced Crystal Identification - MORE PROMINENT
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: FadeScaleIn(
                         delay: const Duration(milliseconds: 800),
-                        child: Container(
-                          height: 80,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            gradient: LinearGradient(
-                              colors: [
-                                Color(0xFF00BCD4),
-                                Color(0xFF9C27B0),
-                              ],
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(0xFF00BCD4).withOpacity(0.4),
-                                blurRadius: 20,
-                                offset: Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () => _navigateToIdentify(context),
-                              borderRadius: BorderRadius.circular(20),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.camera_alt, color: Colors.white, size: 32),
-                                  SizedBox(width: 12),
-                                  Text(
-                                    'Identify Crystal',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                        child: _EnhancedCrystalIdentificationCard(),
                       ),
                     ),
                   ),
+                  
+                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                  
+                  // Crystal of the Day - Enhanced with animations
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: FadeScaleIn(
+                        delay: const Duration(milliseconds: 900),
+                        child: const DailyCrystalCard(),
+                      ),
+                    ),
+                  ),
+                  
+                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
                   
                   // Feature cards grid
                   SliverPadding(
@@ -260,14 +235,14 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
                         FadeScaleIn(
                           delay: const Duration(milliseconds: 1100),
                           child: FeatureCard(
-                            icon: Icons.auto_stories,
-                            title: 'Journal',
-                            description: 'Spiritual diary',
+                            icon: Icons.store,
+                            title: 'Marketplace',
+                            description: 'Buy & sell crystals',
                             iconColor: Colors.blue,
                             isPremium: false,
                             infoText: '${appState.journalEntryCount} Entries',
                             infoSubtext: 'Start Writing',
-                            onTap: () => _navigateToJournal(context),
+                            onTap: () => _navigateToMarketplace(context),
                           ),
                         ),
                         FadeScaleIn(
@@ -804,6 +779,251 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const AccountScreen()),
+    );
+  }
+  
+  void _navigateToMarketplace(BuildContext context) {
+    // TODO: Implement marketplace screen
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Marketplace coming soon!'),
+        backgroundColor: Colors.amber,
+      ),
+    );
+  }
+}
+
+// Enhanced Crystal Identification Card with prominent positioning
+class _EnhancedCrystalIdentificationCard extends StatefulWidget {
+  @override
+  State<_EnhancedCrystalIdentificationCard> createState() => _EnhancedCrystalIdentificationCardState();
+}
+
+class _EnhancedCrystalIdentificationCardState extends State<_EnhancedCrystalIdentificationCard>
+    with TickerProviderStateMixin {
+  late AnimationController _pulseController;
+  late AnimationController _shimmerController;
+  late Animation<double> _pulseAnimation;
+  late Animation<double> _shimmerAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    _pulseController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat(reverse: true);
+    
+    _shimmerController = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    )..repeat();
+    
+    _pulseAnimation = Tween<double>(
+      begin: 0.95,
+      end: 1.05,
+    ).animate(CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    ));
+    
+    _shimmerAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _shimmerController,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    _shimmerController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([_pulseAnimation, _shimmerAnimation]),
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _pulseAnimation.value,
+          child: Container(
+            height: 120, // Taller for more prominence
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xFF20B2AA).withOpacity(0.8), // Teal from gem logo
+                  const Color(0xFFFF4500).withOpacity(0.7), // Red from gem logo
+                  const Color(0xFFFFD700).withOpacity(0.6), // Gold accent
+                ],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF20B2AA).withOpacity(0.4),
+                  blurRadius: 25,
+                  offset: const Offset(0, 12),
+                  spreadRadius: 5,
+                ),
+                BoxShadow(
+                  color: const Color(0xFFFF4500).withOpacity(0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                // Shimmer overlay
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      gradient: LinearGradient(
+                        begin: Alignment(-1.0 + _shimmerAnimation.value * 2, 0),
+                        end: Alignment(1.0 + _shimmerAnimation.value * 2, 0),
+                        colors: [
+                          Colors.transparent,
+                          Colors.white.withOpacity(0.3),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                
+                // Main content
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => _navigateToIdentify(context),
+                    borderRadius: BorderRadius.circular(24),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Row(
+                        children: [
+                          // Enhanced icon with multiple animations
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                colors: [
+                                  Colors.white.withOpacity(0.9),
+                                  Colors.white.withOpacity(0.6),
+                                  Colors.white.withOpacity(0.3),
+                                ],
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.white.withOpacity(0.5),
+                                  blurRadius: 15,
+                                  spreadRadius: 3,
+                                ),
+                              ],
+                            ),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                // Main camera icon
+                                Icon(
+                                  Icons.photo_camera,
+                                  color: const Color(0xFF20B2AA),
+                                  size: 40,
+                                ),
+                                // Rotating sparkle
+                                Transform.rotate(
+                                  angle: _shimmerAnimation.value * 2 * math.pi,
+                                  child: Icon(
+                                    Icons.auto_awesome,
+                                    color: const Color(0xFFFFD700),
+                                    size: 20,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          const SizedBox(width: 20),
+                          
+                          // Text content
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'IDENTIFY CRYSTAL',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Take a photo or describe your crystal',
+                                  style: GoogleFonts.raleway(
+                                    fontSize: 14,
+                                    color: Colors.white.withOpacity(0.9),
+                                    height: 1.3,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    'TAP TO START',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                      letterSpacing: 0.8,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          // Arrow indicator
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            color: Colors.white.withOpacity(0.8),
+                            size: 24,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+  
+  void _navigateToIdentify(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const CameraScreen(),
+      ),
     );
   }
 }
