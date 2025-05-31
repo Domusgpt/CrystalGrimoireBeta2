@@ -7,6 +7,7 @@ import '../widgets/common/mystical_button.dart';
 import '../widgets/common/mystical_card.dart';
 import '../widgets/crystal_logo_painter.dart';
 import '../widgets/teal_red_gem_logo.dart';
+import '../widgets/gem_symbol_logo.dart';
 import '../widgets/daily_crystal_card.dart';
 import 'camera_screen.dart';
 import 'collection_screen.dart';
@@ -151,12 +152,17 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
                       padding: const EdgeInsets.all(20.0),
                       child: Column(
                         children: [
-                          // Teal/Red Gem Logo with animations
+                          // Amethyst Crystal Logo (from Crystal of the Day)
                           FadeScaleIn(
                             delay: const Duration(milliseconds: 200),
-                            child: const TealRedGemLogo(
+                            child: const GemSymbolLogo(
                               size: 120,
                               animate: true,
+                              colors: [
+                                Color(0xFF9966CC), // Amethyst purple
+                                Color(0xFF8A2BE2), // Blue violet
+                                Color(0xFFDDA0DD), // Plum
+                              ],
                             ),
                           ),
                           
@@ -212,7 +218,9 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: FadeScaleIn(
                         delay: const Duration(milliseconds: 800),
-                        child: _EnhancedCrystalIdentificationCard(),
+                        child: _EnhancedCrystalIdentificationCard(
+                          onShare: (shareType) => _showShareOptions(context, shareType),
+                        ),
                       ),
                     ),
                   ),
@@ -329,6 +337,46 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
                                 color: Colors.white,
                               ),
                             ),
+                            SizedBox(height: 12),
+                            // Daily message with moon and astrology
+                            Container(
+                              padding: EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color(0xFF4A148C).withOpacity(0.8),
+                                    Color(0xFF6A1B99).withOpacity(0.6),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: Color(0xFF9C27B0).withOpacity(0.4),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '🌙 ${_getCurrentMoonPhase()} Moon Energy',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFFE1BEE7),
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    _getDailyInsightMessage(),
+                                    style: GoogleFonts.raleway(
+                                      fontSize: 14,
+                                      color: Colors.white.withOpacity(0.9),
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             SizedBox(height: 16),
                             Container(
                               padding: EdgeInsets.all(20),
@@ -403,18 +451,6 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
                       ),
                     ),
                   ),
-                  
-                  // Usage Card
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: FadeScaleIn(
-                        delay: const Duration(milliseconds: 1700),
-                        child: _buildEnhancedUsageCard(context, appState, theme),
-                      ),
-                    ),
-                  ),
-                  
                   // Bottom padding
                   const SliverToBoxAdapter(
                     child: SizedBox(height: 100),
@@ -503,6 +539,51 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
     return phases[DateTime.now().day ~/ 8 % phases.length];
   }
   
+  String _getDailyInsightMessage() {
+    final moonPhase = _getCurrentMoonPhase();
+    final element = _getElement();
+    final now = DateTime.now();
+    final dayOfYear = now.difference(DateTime(now.year, 1, 1)).inDays + 1;
+    
+    final messages = {
+      'New Moon': [
+        'Perfect time for new beginnings and setting crystal intentions. The universe is ready for your manifestations.',
+        'Plant seeds of intention today. Your crystals are charged with fresh lunar energy for new projects.',
+        'This new moon brings clarity and vision. Trust your intuition as you work with your crystal allies.',
+      ],
+      'Waxing': [
+        'Building energy supports growth and expansion. Your crystals are amplifying your progress toward goals.',
+        'The growing moon enhances manifestation power. Focus your crystal work on abundance and achievement.',
+        'Rising lunar energy strengthens your spiritual practice. Let your crystals guide you toward success.',
+      ],
+      'Full Moon': [
+        'Peak lunar energy illuminates hidden truths. Your crystals are at maximum power for healing and insight.',
+        'The full moon reveals what needs to be released. Use your crystals for powerful cleansing rituals.',
+        'Heightened intuition and psychic abilities flow freely. Your crystal connections are especially strong tonight.',
+      ],
+      'Waning': [
+        'Releasing energy helps clear blockages and old patterns. Your crystals support letting go and renewal.',
+        'The diminishing moon aids in banishing negativity. Trust your crystals to protect and purify your energy.',
+        'Time for reflection and gratitude. Your crystals have absorbed much - cleanse and appreciate their service.',
+      ],
+    };
+    
+    final phaseMessages = messages[moonPhase] ?? messages['New Moon']!;
+    final selectedMessage = phaseMessages[dayOfYear % phaseMessages.length];
+    
+    return '$selectedMessage The $element element is particularly active today, bringing ${_getElementalGift(element)} energy to your spiritual practice.';
+  }
+  
+  String _getElementalGift(String element) {
+    switch (element) {
+      case 'Fire': return 'passionate and transformative';
+      case 'Earth': return 'grounding and stabilizing';
+      case 'Air': return 'clarity and communication';
+      case 'Water': return 'emotional healing and intuitive';
+      default: return 'balanced and harmonious';
+    }
+  }
+  
   String _getElement() {
     final elements = ['Fire', 'Earth', 'Air', 'Water'];
     return elements[DateTime.now().day % elements.length];
@@ -515,6 +596,16 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
       return '${appState.currentMonthUsage['identifications']}/30';
     } else {
       return '${appState.currentMonthUsage['identifications']}/${appState.monthlyLimit}';
+    }
+  }
+  
+  int _getDailyLimit(AppState appState) {
+    if (appState.subscriptionTier == 'pro') {
+      return 999; // Unlimited
+    } else if (appState.subscriptionTier == 'premium') {
+      return 30;
+    } else {
+      return appState.monthlyLimit;
     }
   }
   
@@ -892,10 +983,162 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
       ),
     );
   }
+  
+  void _showShareOptions(BuildContext context, String shareType) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF2D1B69),
+              Color(0xFF1A0B2E),
+            ],
+          ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 50,
+              height: 5,
+              margin: EdgeInsets.only(top: 15),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Text(
+                    '✨ Share Your Crystal Journey',
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildShareButton(
+                        icon: Icons.link,
+                        label: 'Copy Link',
+                        color: Color(0xFF9C27B0),
+                        onTap: () => _copyShareLink(context, shareType),
+                      ),
+                      _buildShareButton(
+                        icon: Icons.facebook,
+                        label: 'Facebook',
+                        color: Color(0xFF1877F2),
+                        onTap: () => _shareToSocial(context, 'facebook', shareType),
+                      ),
+                      _buildShareButton(
+                        icon: Icons.share,
+                        label: 'Twitter',
+                        color: Color(0xFF1DA1F2),
+                        onTap: () => _shareToSocial(context, 'twitter', shareType),
+                      ),
+                      _buildShareButton(
+                        icon: Icons.message,
+                        label: 'Message',
+                        color: Color(0xFF25D366),
+                        onTap: () => _shareToSocial(context, 'message', shareType),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 30),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildShareButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: color.withOpacity(0.4),
+                  blurRadius: 15,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Icon(icon, color: Colors.white, size: 28),
+          ),
+          SizedBox(height: 8),
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              color: Colors.white.withOpacity(0.8),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  void _copyShareLink(BuildContext context, String shareType) {
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('🔗 Link copied! Share your crystal discoveries with friends'),
+        backgroundColor: Color(0xFF9C27B0),
+      ),
+    );
+  }
+  
+  void _shareToSocial(BuildContext context, String platform, String shareType) {
+    Navigator.pop(context);
+    final messages = {
+      'crystal_identification': '🔮 Just discovered an amazing crystal using Crystal Grimoire! Check out this mystical app for identifying and learning about crystals ✨',
+      'journal': '📖 Recording my spiritual journey with Crystal Grimoire - the most beautiful crystal companion app! 🌙',
+      'guidance': '🔮 Got incredible spiritual guidance from Crystal Grimoire today! This AI oracle is amazing ✨',
+    };
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('📱 Opening $platform to share: ${messages[shareType]}'),
+        backgroundColor: Color(0xFF1DA1F2),
+      ),
+    );
+  }
 }
 
 // Enhanced Crystal Identification Card with prominent positioning
 class _EnhancedCrystalIdentificationCard extends StatefulWidget {
+  final Function(String) onShare;
+  
+  const _EnhancedCrystalIdentificationCard({
+    Key? key,
+    required this.onShare,
+  }) : super(key: key);
+  
   @override
   State<_EnhancedCrystalIdentificationCard> createState() => _EnhancedCrystalIdentificationCardState();
 }
@@ -1098,15 +1341,73 @@ class _EnhancedCrystalIdentificationCardState extends State<_EnhancedCrystalIden
                                     ),
                                   ),
                                 ),
+                                const SizedBox(height: 12),
+                                // Daily usage display (moved here from separate card)
+                                Consumer<AppState>(
+                                  builder: (context, appState, child) {
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.15),
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: Colors.white.withOpacity(0.3),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.flash_on,
+                                            color: Color(0xFFFFD700),
+                                            size: 16,
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            '${appState.currentMonthUsage['identifications'] ?? 0}/${appState.subscriptionTier == 'pro' ? 999 : appState.subscriptionTier == 'premium' ? 30 : appState.monthlyLimit} uses today',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
                               ],
                             ),
                           ),
                           
-                          // Arrow indicator
-                          Icon(
-                            Icons.arrow_forward_ios,
-                            color: Colors.white.withOpacity(0.8),
-                            size: 24,
+                          // Share and Arrow indicators
+                          Row(
+                            children: [
+                              // Share button
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white.withOpacity(0.2),
+                                ),
+                                child: GestureDetector(
+                                  onTap: () => widget.onShare('crystal_identification'),
+                                  child: Icon(
+                                    Icons.share,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              // Arrow indicator
+                              Icon(
+                                Icons.arrow_forward_ios,
+                                color: Colors.white.withOpacity(0.8),
+                                size: 24,
+                              ),
+                            ],
                           ),
                         ],
                       ),
