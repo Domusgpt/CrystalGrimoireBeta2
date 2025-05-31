@@ -1,0 +1,3 @@
+Build deployed: 2025-05-31 16:05:00 UTC
+Commit: Force cache refresh for Crystal ID prominence
+Features: Enhanced Crystal ID with ammolite sparkles at top position
