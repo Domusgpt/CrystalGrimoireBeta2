@@ -1,3 +1,3 @@
-Build deployed: Sat May 31 20:29:22 UTC 2025
-Commit: Fixed AppState property references for Crystal ID prominence
-Features: Crystal ID properly enhanced with ammolite sparkles at top position
+Build deployed: Sat May 31 20:46:01 UTC 2025
+Commit: Fixed all major layout issues per user feedback
+Features: Teal/red gem logo, horizontal marketplace, Crystal of Day repositioned, Collection free, Journal premium, Premium=30/day, Pro=unlimited

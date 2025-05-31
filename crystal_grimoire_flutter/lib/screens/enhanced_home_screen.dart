@@ -6,6 +6,7 @@ import '../widgets/animations/mystical_animations.dart';
 import '../widgets/common/mystical_button.dart';
 import '../widgets/common/mystical_card.dart';
 import '../widgets/crystal_logo_painter.dart';
+import '../widgets/teal_red_gem_logo.dart';
 import '../widgets/daily_crystal_card.dart';
 import 'camera_screen.dart';
 import 'collection_screen.dart';
@@ -150,25 +151,12 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
                       padding: const EdgeInsets.all(20.0),
                       child: Column(
                         children: [
-                          // Crystal Logo with glow effect
+                          // Teal/Red Gem Logo with animations
                           FadeScaleIn(
                             delay: const Duration(milliseconds: 200),
-                            child: Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Color(0xFF9D4EDD).withOpacity(0.6),
-                                    blurRadius: 30,
-                                    spreadRadius: 10,
-                                  ),
-                                ],
-                              ),
-                              child: CustomPaint(
-                                painter: CrystalLogoPainter(),
-                              ),
+                            child: const TealRedGemLogo(
+                              size: 120,
+                              animate: true,
                             ),
                           ),
                           
@@ -229,20 +217,7 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
                     ),
                   ),
                   
-                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
-                  
-                  // Crystal of the Day - Enhanced with animations
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: FadeScaleIn(
-                        delay: const Duration(milliseconds: 900),
-                        child: const DailyCrystalCard(),
-                      ),
-                    ),
-                  ),
-                  
-                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                  const SliverToBoxAdapter(child: SizedBox(height: 30)),
                   
                   // Feature cards grid
                   SliverPadding(
@@ -262,23 +237,23 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
                             title: 'Collection',
                             description: 'Your crystal inventory',
                             iconColor: Colors.amber,
-                            isPremium: true,
+                            isPremium: false,
                             infoText: '${appState.collectionCount} Crystals',
-                            infoSubtext: 'Premium Feature',
+                            infoSubtext: appState.isPremiumUser ? 'Unlimited' : '5 Free Slots',
                             onTap: () => _navigateToCollection(context),
                           ),
                         ),
                         FadeScaleIn(
                           delay: const Duration(milliseconds: 1100),
                           child: FeatureCard(
-                            icon: Icons.store,
-                            title: 'Marketplace',
-                            description: 'Buy & sell crystals',
+                            icon: Icons.book,
+                            title: 'Journal',
+                            description: 'Spiritual journal & insights',
                             iconColor: Colors.blue,
-                            isPremium: false,
+                            isPremium: true,
                             infoText: '${appState.currentMonthUsage['journal_entries']} Entries',
-                            infoSubtext: 'Start Writing',
-                            onTap: () => _navigateToMarketplace(context),
+                            infoSubtext: 'Premium Feature',
+                            onTap: () => _navigateToJournal(context),
                           ),
                         ),
                         FadeScaleIn(
@@ -289,8 +264,8 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
                             description: 'AI spiritual wisdom',
                             iconColor: Colors.purple,
                             isPremium: true,
-                            infoText: '${appState.currentMonthUsage['identifications']}/${appState.monthlyLimit}',
-                            infoSubtext: 'Pro Feature',
+                            infoText: _getUsageLimitText(appState),
+                            infoSubtext: 'Premium Feature',
                             onTap: () => _navigateToMetaphysicalGuidance(context),
                           ),
                         ),
@@ -310,12 +285,39 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
                     ),
                   ),
                   
-                  // Daily Insight Cards
+                  // Horizontal Marketplace Button with Heavy Effects
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: FadeScaleIn(
                         delay: const Duration(milliseconds: 1400),
+                        child: _buildMarketplaceButton(context),
+                      ),
+                    ),
+                  ),
+                  
+                  // Crystal of the Day (moved here, smaller size)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: FadeScaleIn(
+                        delay: const Duration(milliseconds: 1500),
+                        child: Container(
+                          height: 120, // Smaller size
+                          child: const DailyCrystalCard(),
+                        ),
+                      ),
+                    ),
+                  ),
+                  
+                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                  
+                  // Daily Insight Cards
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: FadeScaleIn(
+                        delay: const Duration(milliseconds: 1600),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -407,7 +409,7 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: FadeScaleIn(
-                        delay: const Duration(milliseconds: 1500),
+                        delay: const Duration(milliseconds: 1700),
                         child: _buildEnhancedUsageCard(context, appState, theme),
                       ),
                     ),
@@ -427,7 +429,7 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
             bottom: 20,
             right: 20,
             child: FadeScaleIn(
-              delay: const Duration(milliseconds: 1600),
+              delay: const Duration(milliseconds: 1800),
               child: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
@@ -504,6 +506,179 @@ class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProv
   String _getElement() {
     final elements = ['Fire', 'Earth', 'Air', 'Water'];
     return elements[DateTime.now().day % elements.length];
+  }
+  
+  String _getUsageLimitText(AppState appState) {
+    if (appState.subscriptionTier == 'pro') {
+      return 'Unlimited';
+    } else if (appState.subscriptionTier == 'premium') {
+      return '${appState.currentMonthUsage['identifications']}/30';
+    } else {
+      return '${appState.currentMonthUsage['identifications']}/${appState.monthlyLimit}';
+    }
+  }
+  
+  Widget _buildMarketplaceButton(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _floatAnimation,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, _floatAnimation.value * 0.3),
+          child: Container(
+            height: 80,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(25),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xFFFFD700).withOpacity(0.9), // Gold
+                  const Color(0xFFE0115F).withOpacity(0.8), // Ruby
+                  const Color(0xFF50C878).withOpacity(0.8), // Emerald
+                  const Color(0xFF0F52BA).withOpacity(0.9), // Sapphire
+                ],
+                stops: [0.0, 0.3, 0.7, 1.0],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFFFD700).withOpacity(0.5),
+                  blurRadius: 25,
+                  offset: const Offset(0, 10),
+                  spreadRadius: 5,
+                ),
+                BoxShadow(
+                  color: const Color(0xFFE0115F).withOpacity(0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                  spreadRadius: 2,
+                ),
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.4),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                  spreadRadius: 3,
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                // Shimmer overlay
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(25),
+                      gradient: LinearGradient(
+                        begin: Alignment(-1.0 + (_floatAnimation.value + 10) * 0.1, 0),
+                        end: Alignment(1.0 + (_floatAnimation.value + 10) * 0.1, 0),
+                        colors: [
+                          Colors.transparent,
+                          Colors.white.withOpacity(0.4),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                
+                // Main button content
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => _navigateToMarketplace(context),
+                    borderRadius: BorderRadius.circular(25),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                      child: Row(
+                        children: [
+                          // Multi-colored gem icon
+                          Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                colors: [
+                                  Colors.white.withOpacity(0.9),
+                                  const Color(0xFFFFD700).withOpacity(0.7),
+                                ],
+                              ),
+                            ),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Icon(
+                                  Icons.diamond,
+                                  color: const Color(0xFFE0115F),
+                                  size: 28,
+                                ),
+                                Transform.rotate(
+                                  angle: (_floatAnimation.value + 10) * 0.1,
+                                  child: Icon(
+                                    Icons.auto_awesome,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          const SizedBox(width: 20),
+                          
+                          // Text content
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  '💎 CRYSTAL MARKETPLACE',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                                Text(
+                                  'Buy • Sell • Trade Premium Crystals',
+                                  style: GoogleFonts.raleway(
+                                    fontSize: 12,
+                                    color: Colors.white.withOpacity(0.9),
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          // Pulsing arrow
+                          Transform.scale(
+                            scale: 1.0 + (_floatAnimation.value + 10) * 0.01,
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withOpacity(0.2),
+                              ),
+                              child: Icon(
+                                Icons.arrow_forward_ios,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
   
   Widget _buildEnhancedUsageCard(BuildContext context, AppState appState, ThemeData theme) {
