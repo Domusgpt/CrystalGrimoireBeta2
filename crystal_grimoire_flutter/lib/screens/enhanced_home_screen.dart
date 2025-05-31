@@ -1,31 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../services/app_state.dart';
-import '../services/storage_service.dart';
-import '../services/usage_tracker.dart';
-import '../config/api_config.dart';
-import '../config/enhanced_theme.dart';
-import '../widgets/animations/enhanced_animations.dart';
-import '../widgets/common/enhanced_mystical_widgets.dart';
-import '../widgets/enhanced_paywall_wrapper.dart';
+import '../widgets/animations/mystical_animations.dart';
+import '../widgets/common/mystical_button.dart';
+import '../widgets/common/mystical_card.dart';
+import '../widgets/crystal_logo_painter.dart';
+import '../widgets/daily_crystal_card.dart';
 import 'camera_screen.dart';
 import 'collection_screen.dart';
 import 'journal_screen.dart';
 import 'settings_screen.dart';
 import 'metaphysical_guidance_screen.dart';
 import 'account_screen.dart';
-import 'auth_account_screen.dart';
-import 'llm_lab_screen.dart';
-import 'crystal_gallery_screen.dart';
-import '../widgets/daily_crystal_card.dart';
-import '../widgets/enhanced_app_title.dart';
-import 'crystal_ai_oracle.dart';
-import 'dream_journal_analyzer.dart';
-import 'crystal_marketplace.dart';
-import 'meditation_sound_bath.dart';
-import 'astro_crystal_matcher.dart';
-import 'crystal_energy_healing.dart';
-import 'moon_ritual_planner.dart';
+import 'dart:math' as math;
 
 class EnhancedHomeScreen extends StatefulWidget {
   const EnhancedHomeScreen({Key? key}) : super(key: key);
@@ -34,1459 +22,1231 @@ class EnhancedHomeScreen extends StatefulWidget {
   State<EnhancedHomeScreen> createState() => _EnhancedHomeScreenState();
 }
 
-class _EnhancedHomeScreenState extends State<EnhancedHomeScreen>
-    with TickerProviderStateMixin {
-  late AnimationController _particleController;
-  String _userTier = 'free';
-  int _dailyIdentifications = 0;
-  int _dailyLimit = 3;
+class _EnhancedHomeScreenState extends State<EnhancedHomeScreen> with TickerProviderStateMixin {
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+  late AnimationController _floatController;
+  late Animation<double> _floatAnimation;
 
   @override
   void initState() {
     super.initState();
-    _particleController = AnimationController(
-      duration: const Duration(seconds: 30),
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    _particleController.repeat();
-    _loadUserData();
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeIn,
+    ));
+    
+    _floatController = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    )..repeat(reverse: true);
+    
+    _floatAnimation = Tween<double>(
+      begin: -10.0,
+      end: 10.0,
+    ).animate(CurvedAnimation(
+      parent: _floatController,
+      curve: Curves.easeInOut,
+    ));
+    
+    _fadeController.forward();
   }
 
   @override
   void dispose() {
-    _particleController.dispose();
+    _fadeController.dispose();
+    _floatController.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadUserData() async {
-    final tier = await StorageService.getSubscriptionTier();
-    final identifications = await StorageService.getDailyIdentifications();
-    
-    setState(() {
-      _userTier = tier;
-      _dailyIdentifications = identifications;
-      _dailyLimit = _getDailyLimit(tier);
-    });
-  }
-
-  int _getDailyLimit(String tier) {
-    switch (tier) {
-      case 'premium':
-        return 5;
-      case 'pro':
-        return 20;
-      case 'founders':
-        return 999;
-      default:
-        return 3;
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final appState = Provider.of<AppState>(context);
-
+    final appState = context.watch<AppState>();
+    
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: CrystalGrimoireTheme.backgroundGradient,
-        ),
-        child: Stack(
-          children: [
-            // Floating particles background
-            const Positioned.fill(
-              child: FloatingParticles(
-                particleCount: 15,
-                particleColor: CrystalGrimoireTheme.stardustSilver,
+      body: Stack(
+        children: [
+          // Enhanced mystical background gradient
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF0D0221), // Deep mystical purple-black
+                  Color(0xFF1A0B2E), // Dark violet
+                  Color(0xFF16213E), // Midnight blue
+                ],
               ),
             ),
-            
-            // Main content
-            SafeArea(
-              child: CustomScrollView(
-                physics: const BouncingScrollPhysics(),
-                slivers: [
-                  // Enhanced App bar with logo
-                  SliverAppBar(
-                    expandedHeight: 260,
-                    floating: true,
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    flexibleSpace: const FlexibleSpaceBar(
-                      title: Padding(
-                        padding: EdgeInsets.only(bottom: 20),
-                        child: EnhancedAppTitle(
-                          fontSize: 52,
-                          showLogo: true,
-                        ),
-                      ),
-                      centerTitle: true,
+          ),
+          
+          // Animated crystal particles
+          const FloatingParticles(
+            particleCount: 20,
+            color: Color(0xFF9D4EDD),
+          ),
+          
+          // Additional floating crystals
+          Positioned(
+            top: 100,
+            left: -50,
+            child: AnimatedBuilder(
+              animation: _floatAnimation,
+              builder: (context, child) {
+                return Transform.translate(
+                  offset: Offset(0, _floatAnimation.value),
+                  child: Opacity(
+                    opacity: 0.3,
+                    child: Icon(
+                      Icons.diamond,
+                      size: 100,
+                      color: Color(0xFF7B2CBF),
                     ),
-                    actions: [
-                      MysticalAnimations.fadeScaleIn(
-                        delay: const Duration(milliseconds: 300),
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 16),
-                          child: TierBadge(
-                            tier: _userTier,
-                            isActive: true,
-                            onTap: () => _navigateToAccount(),
+                  ),
+                );
+              },
+            ),
+          ),
+          
+          Positioned(
+            bottom: 150,
+            right: -30,
+            child: AnimatedBuilder(
+              animation: _floatAnimation,
+              builder: (context, child) {
+                return Transform.translate(
+                  offset: Offset(0, -_floatAnimation.value * 0.8),
+                  child: Opacity(
+                    opacity: 0.2,
+                    child: Icon(
+                      Icons.hexagon,
+                      size: 120,
+                      color: Color(0xFF9D4EDD),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          
+          // Main content
+          SafeArea(
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: CustomScrollView(
+                slivers: [
+                  // App header with animated logo
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        children: [
+                          // Crystal Logo with glow effect
+                          FadeScaleIn(
+                            delay: const Duration(milliseconds: 200),
+                            child: Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Color(0xFF9D4EDD).withOpacity(0.6),
+                                    blurRadius: 30,
+                                    spreadRadius: 10,
+                                  ),
+                                ],
+                              ),
+                              child: CustomPaint(
+                                painter: CrystalLogoPainter(),
+                              ),
+                            ),
                           ),
-                        ),
+                          
+                          const SizedBox(height: 20),
+                          
+                          // Shimmering title
+                          FadeScaleIn(
+                            delay: const Duration(milliseconds: 400),
+                            child: ShaderMask(
+                              shaderCallback: (bounds) => LinearGradient(
+                                colors: [
+                                  Color(0xFFE0AAFF),
+                                  Color(0xFFC77DFF),
+                                  Color(0xFF9D4EDD),
+                                ],
+                                stops: [0.0, 0.5, 1.0],
+                              ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+                              child: Text(
+                                'Crystal Grimoire',
+                                style: GoogleFonts.cinzelDecorative(
+                                  fontSize: 42,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: 2,
+                                ),
+                              ),
+                            ),
+                          ),
+                          
+                          const SizedBox(height: 8),
+                          
+                          // Animated subtitle
+                          FadeScaleIn(
+                            delay: const Duration(milliseconds: 600),
+                            child: AnimatedDefaultTextStyle(
+                              duration: Duration(seconds: 2),
+                              style: GoogleFonts.raleway(
+                                fontSize: 16,
+                                color: Colors.white.withOpacity(0.8),
+                                letterSpacing: 1.5,
+                              ),
+                              child: Text('Your Mystical Crystal Companion'),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                   
-                  // Content
+                  // Enhanced Crystal Identification - MORE PROMINENT
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: FadeScaleIn(
+                        delay: const Duration(milliseconds: 800),
+                        child: _EnhancedCrystalIdentificationCard(),
+                      ),
+                    ),
+                  ),
+                  
+                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                  
+                  // Crystal of the Day - Enhanced with animations
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: FadeScaleIn(
+                        delay: const Duration(milliseconds: 900),
+                        child: const DailyCrystalCard(),
+                      ),
+                    ),
+                  ),
+                  
+                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                  
+                  // Feature cards grid
                   SliverPadding(
-                    padding: const EdgeInsets.all(20),
-                    sliver: SliverList(
+                    padding: const EdgeInsets.all(20.0),
+                    sliver: SliverGrid(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 16,
+                        childAspectRatio: 1.0,
+                      ),
                       delegate: SliverChildListDelegate([
-                        // Welcome message
-                        MysticalAnimations.slideIn(
-                          direction: SlideDirection.top,
-                          delay: const Duration(milliseconds: 200),
-                          child: _buildWelcomeCard(),
+                        FadeScaleIn(
+                          delay: const Duration(milliseconds: 1000),
+                          child: FeatureCard(
+                            icon: Icons.collections_bookmark,
+                            title: 'Collection',
+                            description: 'Your crystal inventory',
+                            iconColor: Colors.amber,
+                            isPremium: true,
+                            infoText: '${appState.collectionCount} Crystals',
+                            infoSubtext: 'Premium Feature',
+                            onTap: () => _navigateToCollection(context),
+                          ),
                         ),
-                        
-                        const SizedBox(height: 24),
-                        
-                        
-                        // Daily Spiritual Insights (replacing usage stats)
-                        MysticalAnimations.slideIn(
-                          direction: SlideDirection.left,
-                          delay: const Duration(milliseconds: 400),
-                          child: _buildDailySpiritualInsights(),
+                        FadeScaleIn(
+                          delay: const Duration(milliseconds: 1100),
+                          child: FeatureCard(
+                            icon: Icons.store,
+                            title: 'Marketplace',
+                            description: 'Buy & sell crystals',
+                            iconColor: Colors.blue,
+                            isPremium: false,
+                            infoText: '${appState.currentMonthUsage['journal_entries']} Entries',
+                            infoSubtext: 'Start Writing',
+                            onTap: () => _navigateToMarketplace(context),
+                          ),
                         ),
-                        
-                        const SizedBox(height: 24),
-                        
-                        // Crystal of the Day (moved down)
-                        MysticalAnimations.slideIn(
-                          direction: SlideDirection.right,
-                          delay: const Duration(milliseconds: 500),
-                          child: _buildEnhancedCrystalOfDay(),
+                        FadeScaleIn(
+                          delay: const Duration(milliseconds: 1200),
+                          child: FeatureCard(
+                            icon: Icons.auto_fix_high,
+                            title: 'Guidance',
+                            description: 'AI spiritual wisdom',
+                            iconColor: Colors.purple,
+                            isPremium: true,
+                            infoText: '${appState.currentMonthUsage['identifications']}/${appState.monthlyLimit}',
+                            infoSubtext: 'Pro Feature',
+                            onTap: () => _navigateToMetaphysicalGuidance(context),
+                          ),
                         ),
-                        
-                        const SizedBox(height: 32),
-                        
-                        // Main actions grid
-                        MysticalAnimations.staggeredList(
-                          itemDelay: const Duration(milliseconds: 150),
-                          children: [
-                            _buildMainActionsGrid(),
-                            const SizedBox(height: 24),
-                            _buildPremiumActionsGrid(),
-                            const SizedBox(height: 24),
-                            _buildUltimateActionsGrid(),
-                            const SizedBox(height: 32),
-                            _buildQuickActions(),
-                          ],
+                        FadeScaleIn(
+                          delay: const Duration(milliseconds: 1300),
+                          child: FeatureCard(
+                            icon: Icons.account_circle,
+                            title: 'Account',
+                            description: 'Profile & billing',
+                            iconColor: Colors.green,
+                            infoText: appState.isPremiumUser ? 'Premium' : 'Free',
+                            infoSubtext: appState.subscriptionTier.toUpperCase(),
+                            onTap: () => _navigateToAccount(context),
+                          ),
                         ),
                       ]),
                     ),
                   ),
+                  
+                  // Daily Insight Cards
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: FadeScaleIn(
+                        delay: const Duration(milliseconds: 1400),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Daily Insights',
+                              style: GoogleFonts.poppins(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            Container(
+                              padding: EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color(0xFF240046).withOpacity(0.8),
+                                    Color(0xFF3C096C).withOpacity(0.6),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: Color(0xFF7209B7).withOpacity(0.3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.nights_stay,
+                                        color: Color(0xFFE0AAFF),
+                                        size: 28,
+                                      ),
+                                      SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Moon Phase',
+                                              style: TextStyle(
+                                                color: Color(0xFFE0AAFF),
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                            Text(
+                                              _getCurrentMoonPhase(),
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 16),
+                                  Row(
+                                    children: [
+                                      _buildDailyInsightChip(
+                                        icon: Icons.favorite,
+                                        label: 'Love Energy',
+                                        color: Colors.pink,
+                                      ),
+                                      SizedBox(width: 8),
+                                      _buildDailyInsightChip(
+                                        icon: Icons.bolt,
+                                        label: '${_getElement()} Element',
+                                        color: Colors.orange,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  
+                  // Usage Card
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: FadeScaleIn(
+                        delay: const Duration(milliseconds: 1500),
+                        child: _buildEnhancedUsageCard(context, appState, theme),
+                      ),
+                    ),
+                  ),
+                  
+                  // Bottom padding
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 100),
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWelcomeCard() {
-    return EnhancedMysticalCard(
-      isGlowing: _userTier != 'free',
-      glowColor: _userTier == 'founders' 
-          ? CrystalGrimoireTheme.celestialGold
-          : CrystalGrimoireTheme.mysticPurple,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Welcome, Crystal Seeker',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Discover the mystical properties of crystals through AI-powered identification and spiritual guidance.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: CrystalGrimoireTheme.stardustSilver.withOpacity(0.8),
+          
+          // Enhanced floating action button
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: FadeScaleIn(
+              delay: const Duration(milliseconds: 1600),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF7209B7), Color(0xFF560BAD)],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFF7209B7).withOpacity(0.5),
+                      blurRadius: 20,
+                      offset: Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: FloatingActionButton(
+                  onPressed: () => _navigateToSettings(context),
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  child: Icon(Icons.settings, color: Colors.white),
+                ),
+              ),
             ),
           ),
         ],
       ),
     );
   }
-
-  Widget _buildUsageStats() {
-    final remainingUses = _dailyLimit - _dailyIdentifications;
-    final percentage = _dailyIdentifications / _dailyLimit;
+  
+  void _navigateToSettings(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SettingsScreen()),
+    );
+  }
+  
+  Widget _buildDailyInsightChip({
+    required IconData icon,
+    required String label,
+    required Color color,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: color.withOpacity(0.5),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 18),
+          SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  String _getCurrentMoonPhase() {
+    final phases = ['New Moon', 'Waxing', 'Full Moon', 'Waning'];
+    return phases[DateTime.now().day ~/ 8 % phases.length];
+  }
+  
+  String _getElement() {
+    final elements = ['Fire', 'Earth', 'Air', 'Water'];
+    return elements[DateTime.now().day % elements.length];
+  }
+  
+  Widget _buildEnhancedUsageCard(BuildContext context, AppState appState, ThemeData theme) {
+    final usageData = appState.currentMonthUsage;
+    final isFreeTier = appState.subscriptionTier == 'free';
+    final limit = appState.monthlyLimit;
+    final used = usageData['identifications'] ?? 0;
+    final remaining = limit - used;
+    final percentage = limit > 0 ? used / limit : 0.0;
     
-    return EnhancedMysticalCard(
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            theme.colorScheme.surface.withOpacity(0.8),
+            theme.colorScheme.surface.withOpacity(0.6),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: theme.colorScheme.outline.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Daily Usage',
-                style: Theme.of(context).textTheme.titleLarge,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Daily Usage',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    isFreeTier ? 'Free Tier' : appState.subscriptionTier.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isFreeTier ? Colors.grey : Colors.amber,
+                    ),
+                  ),
+                ],
               ),
-              StatusIndicator(
-                text: '$remainingUses left',
-                type: remainingUses > 0 ? StatusType.success : StatusType.warning,
-              ),
+              if (isFreeTier)
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.purple, Colors.deepPurple],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'Upgrade',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 20),
           
-          // Progress bar
-          Container(
-            height: 8,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4),
-              color: CrystalGrimoireTheme.royalPurple.withOpacity(0.3),
-            ),
-            child: FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: percentage.clamp(0.0, 1.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  gradient: percentage >= 1.0
-                      ? const LinearGradient(
-                          colors: [
-                            CrystalGrimoireTheme.errorRed,
-                            CrystalGrimoireTheme.warningAmber,
-                          ],
-                        )
-                      : CrystalGrimoireTheme.primaryButtonGradient,
-                ),
-              ),
-            ),
-          ),
-          
-          const SizedBox(height: 8),
-          Text(
-            '$_dailyIdentifications / $_dailyLimit identifications used',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDailySpiritualInsights() {
-    final now = DateTime.now();
-    final moonPhases = ['🌑 New Moon', '🌒 Waxing Crescent', '🌓 First Quarter', '🌔 Waxing Gibbous', '🌕 Full Moon', '🌖 Waning Gibbous', '🌗 Last Quarter', '🌘 Waning Crescent'];
-    final currentMoonPhase = moonPhases[now.day % 8];
-    
-    final spiritualInsights = [
-      'Trust your intuition - the universe is guiding you',
-      'Your crystal allies are amplifying your intentions today',
-      'Perfect time for manifestation and crystal charging',
-      'Your aura is especially receptive to healing energies',
-      'The cosmic energies support your spiritual growth',
-    ];
-    
-    final dailyInsight = spiritualInsights[now.day % spiritualInsights.length];
-    
-    return EnhancedMysticalCard(
-      isGlowing: true,
-      glowColor: CrystalGrimoireTheme.amethyst,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          // Enhanced usage display
           Row(
             children: [
-              const Icon(
-                Icons.auto_awesome,
-                color: CrystalGrimoireTheme.celestialGold,
-                size: 24,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$used / $limit',
+                      style: GoogleFonts.poppins(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                    Text(
+                      'Crystals Identified Today',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: theme.colorScheme.onSurface.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(width: 8),
-              Text(
-                'Daily Spiritual Insights',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+              Container(
+                width: 80,
+                height: 80,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      value: percentage,
+                      strokeWidth: 8,
+                      backgroundColor: theme.colorScheme.primary.withOpacity(0.2),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        percentage > 0.8 ? Colors.orange : theme.colorScheme.primary,
+                      ),
+                    ),
+                    Text(
+                      '$remaining',
+                      style: GoogleFonts.poppins(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 20,
+                      child: Text(
+                        'left',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: theme.colorScheme.onSurface.withOpacity(0.7),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
           
-          // Moon phase
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              gradient: LinearGradient(
-                colors: [
-                  CrystalGrimoireTheme.moonlightSilver.withOpacity(0.2),
-                  CrystalGrimoireTheme.etherealBlue.withOpacity(0.2),
+          if (isFreeTier) ...[
+            SizedBox(height: 16),
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.amber.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.amber.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.star, color: Colors.amber, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Upgrade for unlimited identifications & premium features!',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.amber,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-            child: Row(
-              children: [
-                Text(
-                  currentMoonPhase,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const Spacer(),
-                const Text(
-                  'Lunar Energy',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          const SizedBox(height: 12),
-          
-          // Daily insight
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              gradient: LinearGradient(
-                colors: [
-                  CrystalGrimoireTheme.amethyst.withOpacity(0.2),
-                  CrystalGrimoireTheme.cosmicViolet.withOpacity(0.2),
-                ],
-              ),
-            ),
-            child: Text(
-              dailyInsight,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ),
+          ],
         ],
       ),
     );
   }
+  
+  // Navigation methods
+  void _navigateToIdentify(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CameraScreen()),
+    );
+  }
+  
+  void _navigateToCollection(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CollectionScreen()),
+    );
+  }
+  
+  void _navigateToJournal(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const JournalScreen()),
+    );
+  }
+  
+  void _navigateToMetaphysicalGuidance(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const MetaphysicalGuidanceScreen()),
+    );
+  }
+  
+  void _navigateToAccount(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AccountScreen()),
+    );
+  }
+  
+  void _navigateToMarketplace(BuildContext context) {
+    // TODO: Implement marketplace screen
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Marketplace coming soon!'),
+        backgroundColor: Colors.amber,
+      ),
+    );
+  }
+}
 
-  Widget _buildEnhancedCrystalOfDay() {
-    final crystals = [
-      {'name': 'Black Obsidian', 'property': 'Psychic Protection', 'element': 'Earth', 'chakra': 'Root'},
-      {'name': 'Amethyst', 'property': 'Spiritual Awareness', 'element': 'Air', 'chakra': 'Crown'},
-      {'name': 'Rose Quartz', 'property': 'Unconditional Love', 'element': 'Water', 'chakra': 'Heart'},
-      {'name': 'Citrine', 'property': 'Abundance & Joy', 'element': 'Fire', 'chakra': 'Solar Plexus'},
-      {'name': 'Clear Quartz', 'property': 'Amplification', 'element': 'All', 'chakra': 'Crown'},
-    ];
+// Enhanced Crystal Identification Card with prominent positioning
+class _EnhancedCrystalIdentificationCard extends StatefulWidget {
+  @override
+  State<_EnhancedCrystalIdentificationCard> createState() => _EnhancedCrystalIdentificationCardState();
+}
+
+class _EnhancedCrystalIdentificationCardState extends State<_EnhancedCrystalIdentificationCard>
+    with TickerProviderStateMixin {
+  late AnimationController _pulseController;
+  late AnimationController _shimmerController;
+  late Animation<double> _pulseAnimation;
+  late Animation<double> _shimmerAnimation;
+
+  @override
+  void initState() {
+    super.initState();
     
-    final todaysCrystal = crystals[DateTime.now().day % crystals.length];
+    _pulseController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat(reverse: true);
     
-    return EnhancedMysticalCard(
-      isGlowing: true,
-      glowColor: CrystalGrimoireTheme.celestialGold,
-      child: Row(
-        children: [
-          // Crystal icon
-          Container(
-            width: 80,
-            height: 80,
+    _shimmerController = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    )..repeat();
+    
+    _pulseAnimation = Tween<double>(
+      begin: 0.95,
+      end: 1.05,
+    ).animate(CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    ));
+    
+    _shimmerAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _shimmerController,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    _shimmerController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([_pulseAnimation, _shimmerAnimation]),
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _pulseAnimation.value,
+          child: Stack(
+            children: [
+              Container(
+            height: 150, // 25% larger for more prominence
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
+              borderRadius: BorderRadius.circular(24),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
                 colors: [
-                  CrystalGrimoireTheme.celestialGold.withOpacity(0.3),
-                  CrystalGrimoireTheme.warningAmber.withOpacity(0.5),
+                  const Color(0xFF20B2AA).withOpacity(0.8), // Teal from gem logo
+                  const Color(0xFFFF4500).withOpacity(0.7), // Red from gem logo
+                  const Color(0xFFFFD700).withOpacity(0.6), // Gold accent
                 ],
               ),
               boxShadow: [
                 BoxShadow(
-                  color: CrystalGrimoireTheme.celestialGold.withOpacity(0.4),
-                  blurRadius: 20,
+                  color: const Color(0xFF20B2AA).withOpacity(0.4),
+                  blurRadius: 25,
+                  offset: const Offset(0, 12),
+                  spreadRadius: 5,
+                ),
+                BoxShadow(
+                  color: const Color(0xFFFF4500).withOpacity(0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
                   spreadRadius: 2,
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.diamond,
-              color: Colors.white,
-              size: 36,
-            ),
-          ),
-          
-          const SizedBox(width: 16),
-          
-          // Crystal info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Stack(
               children: [
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.wb_sunny,
-                      color: CrystalGrimoireTheme.celestialGold,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Crystal of the Day',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: CrystalGrimoireTheme.celestialGold,
-                        fontWeight: FontWeight.bold,
+                // Shimmer overlay
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      gradient: LinearGradient(
+                        begin: Alignment(-1.0 + _shimmerAnimation.value * 2, 0),
+                        end: Alignment(1.0 + _shimmerAnimation.value * 2, 0),
+                        colors: [
+                          Colors.transparent,
+                          Colors.white.withOpacity(0.3),
+                          Colors.transparent,
+                        ],
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  todaysCrystal['name']!,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  todaysCrystal['property']!,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
+                
+                // Main content
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => _navigateToIdentify(context),
+                    borderRadius: BorderRadius.circular(24),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Row(
+                        children: [
+                          // Enhanced icon with multiple animations
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                colors: [
+                                  Colors.white.withOpacity(0.9),
+                                  Colors.white.withOpacity(0.6),
+                                  Colors.white.withOpacity(0.3),
+                                ],
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.white.withOpacity(0.5),
+                                  blurRadius: 15,
+                                  spreadRadius: 3,
+                                ),
+                              ],
+                            ),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                // Main camera icon
+                                Icon(
+                                  Icons.photo_camera,
+                                  color: const Color(0xFF20B2AA),
+                                  size: 40,
+                                ),
+                                // Rotating sparkle
+                                Transform.rotate(
+                                  angle: _shimmerAnimation.value * 2 * math.pi,
+                                  child: Icon(
+                                    Icons.auto_awesome,
+                                    color: const Color(0xFFFFD700),
+                                    size: 20,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          const SizedBox(width: 20),
+                          
+                          // Text content
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'IDENTIFY CRYSTAL',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Take a photo or describe your crystal',
+                                  style: GoogleFonts.raleway(
+                                    fontSize: 14,
+                                    color: Colors.white.withOpacity(0.9),
+                                    height: 1.3,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    'TAP TO START',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                      letterSpacing: 0.8,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          // Arrow indicator
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            color: Colors.white.withOpacity(0.8),
+                            size: 24,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    _buildPropertyTag(todaysCrystal['element']!, CrystalGrimoireTheme.successGreen),
-                    const SizedBox(width: 8),
-                    _buildPropertyTag(todaysCrystal['chakra']!, CrystalGrimoireTheme.mysticPurple),
-                  ],
                 ),
               ],
             ),
+              ),
+              
+              // Ammolite sparkle effect overlay (moved from Crystal of the Day)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: CustomPaint(
+                    painter: AmmoliteSparklesPainter(
+                      progress: _shimmerAnimation.value,
+                      intensity: 1.0,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
   
-  Widget _buildPropertyTag(String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.5)),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: color,
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-        ),
+  void _navigateToIdentify(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const CameraScreen(),
       ),
     );
   }
+}
 
-  Widget _buildMainActionsGrid() {
-    return Column(
-      children: [
-        // Crystal Identification - Unique UI outside grid
-        _buildCrystalIdentificationCard(),
-        
-        const SizedBox(height: 24),
-        
-        // Crystal Gallery - Made bigger (full width)
-        _buildActionCard(
-          title: 'Crystal Gallery',
-          subtitle: 'Explore our comprehensive collection of crystals with detailed properties, metaphysical meanings, and spiritual guidance',
-          icon: Icons.diamond_outlined,
-          gradient: const LinearGradient(
-            colors: [
-              CrystalGrimoireTheme.amethyst,
-              CrystalGrimoireTheme.crystalRose,
-            ],
-          ),
-          onTap: () => _navigateToCrystalGallery(),
-        ),
-        
-        const SizedBox(height: 16),
-        
-        GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          childAspectRatio: 1.1,
-          children: [
-            // Spiritual Journal
-            _buildActionCard(
-              title: 'Spiritual Journal',
-              subtitle: 'Document your crystal journey & insights',
-              icon: Icons.book_outlined,
-              gradient: const LinearGradient(
-                colors: [
-                  CrystalGrimoireTheme.etherealBlue,
-                  CrystalGrimoireTheme.mysticPurple,
-                ],
-              ),
-              onTap: () => _navigateToJournal(),
-            ),
-            
-            // Quick Guide
-            _buildActionCard(
-              title: 'Quick Guide',
-              subtitle: 'Essential crystal meanings & usage tips',
-              icon: Icons.auto_stories_outlined,
-              gradient: const LinearGradient(
-                colors: [
-                  CrystalGrimoireTheme.successGreen,
-                  CrystalGrimoireTheme.etherealBlue,
-                ],
-              ),
-              onTap: () => _showQuickGuide(),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        
-        // Account - Full width
-        _buildActionCard(
-          title: 'Account & Settings',
-          subtitle: 'Manage your subscription, preferences, and spiritual profile',
-          icon: Icons.person_outline,
-          gradient: const LinearGradient(
-            colors: [
-              CrystalGrimoireTheme.moonlightSilver,
-              CrystalGrimoireTheme.stardustSilver,
-            ],
-          ),
-          onTap: () => _navigateToAccount(),
-        ),
-      ],
-    );
-  }
+// Keep the enhanced FeatureCard from original file
+class FeatureCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String description;
+  final Color iconColor;
+  final VoidCallback onTap;
+  final bool isPremium;
+  final String? infoText;
+  final String? infoSubtext;
 
-  Widget _buildPremiumActionsGrid() {
-    return GridView.count(
-      crossAxisCount: 2,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 1.1,
-      children: [
-        // Collection (Premium)
-        EnhancedPaywallWrapper(
-          feature: 'Collection Management',
-          requiredTier: 'premium',
-          child: _buildActionCard(
-            title: 'My Collection',
-            subtitle: 'Organize & track your crystal inventory with AI insights',
-            icon: Icons.inventory_2_outlined,
-            gradient: CrystalGrimoireTheme.premiumGradient,
-            onTap: () => _navigateToCollection(),
-            isPremium: true,
-          ),
-        ),
-        
-        // Metaphysical Guidance (Pro)
-        EnhancedPaywallWrapper(
-          feature: 'Metaphysical Guidance',
-          requiredTier: 'pro',
-          child: _buildActionCard(
-            title: 'AI Guidance',
-            subtitle: 'Personalized spiritual wisdom & crystal recommendations',
-            icon: Icons.psychology_outlined,
-            gradient: const LinearGradient(
-              colors: [
-                CrystalGrimoireTheme.amethyst,
-                CrystalGrimoireTheme.cosmicViolet,
-              ],
-            ),
-            onTap: () => _navigateToGuidance(),
-            isPremium: true,
-          ),
-        ),
-      ],
-    );
-  }
+  const FeatureCard({
+    Key? key,
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.iconColor,
+    required this.onTap,
+    this.isPremium = false,
+    this.infoText,
+    this.infoSubtext,
+  }) : super(key: key);
 
-  Widget _buildUltimateActionsGrid() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '✨ ULTIMATE Features',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: CrystalGrimoireTheme.celestialGold,
-          ),
-        ),
-        const SizedBox(height: 16),
-        
-        // First row of ULTIMATE features
-        GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          childAspectRatio: 1.1,
-          children: [
-            // Crystal AI Oracle
-            _buildActionCard(
-              title: 'AI Oracle',
-              subtitle: 'Advanced crystal readings & divine guidance',
-              icon: Icons.psychology_alt_outlined,
-              gradient: const LinearGradient(
-                colors: [
-                  CrystalGrimoireTheme.cosmicViolet,
-                  CrystalGrimoireTheme.mysticPurple,
-                ],
-              ),
-              onTap: () => _navigateToOracle(),
-              isPremium: true,
-            ),
-            
-            // Moon Ritual Planner
-            _buildActionCard(
-              title: 'Moon Rituals',
-              subtitle: 'Lunar-powered crystal ceremonies & intentions',
-              icon: Icons.brightness_3,
-              gradient: const LinearGradient(
-                colors: [
-                  CrystalGrimoireTheme.moonlightSilver,
-                  CrystalGrimoireTheme.etherealBlue,
-                ],
-              ),
-              onTap: () => _navigateToMoonRituals(),
-              isPremium: true,
-            ),
-          ],
-        ),
-        
-        const SizedBox(height: 16),
-        
-        // Second row
-        GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          childAspectRatio: 1.1,
-          children: [
-            // Dream Journal
-            _buildActionCard(
-              title: 'Dream Journal',
-              subtitle: 'AI-powered dream analysis with crystal insights',
-              icon: Icons.nights_stay_outlined,
-              gradient: const LinearGradient(
-                colors: [
-                  CrystalGrimoireTheme.amethyst,
-                  CrystalGrimoireTheme.deepSpace,
-                ],
-              ),
-              onTap: () => _navigateToDreamJournal(),
-              isPremium: true,
-            ),
-            
-            // Energy Healing
-            _buildActionCard(
-              title: 'Energy Healing',
-              subtitle: 'Chakra balancing with crystal frequency therapy',
-              icon: Icons.healing_outlined,
-              gradient: const LinearGradient(
-                colors: [
-                  CrystalGrimoireTheme.successGreen,
-                  CrystalGrimoireTheme.etherealBlue,
-                ],
-              ),
-              onTap: () => _navigateToEnergyHealing(),
-              isPremium: true,
-            ),
-          ],
-        ),
-        
-        const SizedBox(height: 16),
-        
-        // Third row
-        GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          childAspectRatio: 1.1,
-          children: [
-            // Astro Crystal Matcher
-            _buildActionCard(
-              title: 'Astro Crystals',
-              subtitle: 'Birth chart-aligned crystal recommendations',
-              icon: Icons.star_outline,
-              gradient: const LinearGradient(
-                colors: [
-                  CrystalGrimoireTheme.celestialGold,
-                  CrystalGrimoireTheme.warningAmber,
-                ],
-              ),
-              onTap: () => _navigateToAstroMatcher(),
-              isPremium: true,
-            ),
-            
-            // Meditation Sound Bath
-            _buildActionCard(
-              title: 'Sound Bath',
-              subtitle: 'Healing frequencies & crystal-tuned meditations',
-              icon: Icons.music_note_outlined,
-              gradient: const LinearGradient(
-                colors: [
-                  CrystalGrimoireTheme.crystalRose,
-                  CrystalGrimoireTheme.amethyst,
-                ],
-              ),
-              onTap: () => _navigateToSoundBath(),
-              isPremium: true,
-            ),
-          ],
-        ),
-        
-        const SizedBox(height: 16),
-        
-        // Crystal Marketplace (full width)
-        _buildActionCard(
-          title: 'Crystal Marketplace',
-          subtitle: 'Find authentic crystals & connect with sellers',
-          icon: Icons.shopping_bag_outlined,
-          gradient: CrystalGrimoireTheme.premiumGradient,
-          onTap: () => _navigateToMarketplace(),
-          isPremium: true,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildQuickActions() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Quick Actions',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 16),
-        
-        Row(
-          children: [
-            Expanded(
-              child: EnhancedMysticalButton(
-                text: 'Account',
-                icon: Icons.person_outline,
-                isPrimary: false,
-                onPressed: _navigateToAccount,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: EnhancedMysticalButton(
-                text: 'Settings',
-                icon: Icons.settings_outlined,
-                isPrimary: false,
-                onPressed: _navigateToSettings,
-              ),
-            ),
-          ],
-        ),
-        
-        const SizedBox(height: 16),
-        
-        // Founders exclusive
-        if (_userTier == 'founders') ...[
-          EnhancedMysticalButton(
-            text: 'LLM Experimentation Lab',
-            icon: Icons.science_outlined,
-            isPremium: true,
-            width: double.infinity,
-            onPressed: _navigateToLLMLab,
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildActionCard({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Gradient gradient,
-    required VoidCallback onTap,
-    bool isPremium = false,
-    bool isEnabled = true,
-  }) {
-    return EnhancedMysticalCard(
-      isPremium: isPremium,
-      isGlowing: isPremium,
-      onTap: isEnabled ? onTap : null,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              gradient: isEnabled ? gradient : null,
-              color: !isEnabled 
-                  ? CrystalGrimoireTheme.stardustSilver.withOpacity(0.3)
-                  : null,
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Center(
-              child: Icon(
-                icon,
-                color: isEnabled 
-                    ? CrystalGrimoireTheme.moonlightWhite
-                    : CrystalGrimoireTheme.stardustSilver.withOpacity(0.5),
-                size: 24,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: isEnabled 
-                  ? null
-                  : CrystalGrimoireTheme.stardustSilver.withOpacity(0.5),
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: isEnabled 
-                  ? CrystalGrimoireTheme.stardustSilver.withOpacity(0.7)
-                  : CrystalGrimoireTheme.stardustSilver.withOpacity(0.4),
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCrystalIdentificationCard() {
-    final isEnabled = _dailyIdentifications < _dailyLimit;
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     
-    return EnhancedMysticalCard(
-      isGlowing: true,
-      glowColor: isEnabled ? CrystalGrimoireTheme.amethyst : CrystalGrimoireTheme.stardustSilver,
-      onTap: isEnabled ? () => _navigateToCamera() : null,
+    return GestureDetector(
+      onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(20),
-        child: Row(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              theme.colorScheme.surface.withOpacity(0.8),
+              theme.colorScheme.surface.withOpacity(0.6),
+            ],
+          ),
+          border: Border.all(
+            color: isPremium 
+              ? Colors.amber.withOpacity(0.5)
+              : theme.colorScheme.outline.withOpacity(0.2),
+            width: isPremium ? 2 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isPremium 
+                ? Colors.amber.withOpacity(0.2)
+                : Colors.black.withOpacity(0.1),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Stack(
           children: [
-            // Large camera icon with gradient background
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                gradient: isEnabled 
-                    ? CrystalGrimoireTheme.primaryButtonGradient
-                    : LinearGradient(
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
                         colors: [
-                          CrystalGrimoireTheme.stardustSilver.withOpacity(0.3),
-                          CrystalGrimoireTheme.stardustSilver.withOpacity(0.5),
+                          iconColor.withOpacity(0.3),
+                          iconColor.withOpacity(0.1),
                         ],
                       ),
-                shape: BoxShape.circle,
-                boxShadow: isEnabled ? [
-                  BoxShadow(
-                    color: CrystalGrimoireTheme.amethyst.withOpacity(0.5),
-                    blurRadius: 20,
-                    spreadRadius: 2,
-                  ),
-                ] : null,
-              ),
-              child: Icon(
-                Icons.camera_alt_rounded,
-                color: isEnabled 
-                    ? Colors.white 
-                    : CrystalGrimoireTheme.stardustSilver.withOpacity(0.7),
-                size: 40,
-              ),
-            ),
-            const SizedBox(width: 20),
-            // Text content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Crystal Identification',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: isEnabled 
-                          ? Colors.white 
-                          : CrystalGrimoireTheme.stardustSilver.withOpacity(0.5),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    isEnabled 
-                        ? 'Point your camera at any crystal for instant AI-powered identification and metaphysical insights'
-                        : 'Daily limit reached. Upgrade for unlimited identifications!',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: isEnabled 
-                          ? CrystalGrimoireTheme.stardustSilver.withOpacity(0.9)
-                          : CrystalGrimoireTheme.stardustSilver.withOpacity(0.5),
+                    child: Icon(
+                      icon,
+                      size: 32,
+                      color: iconColor,
                     ),
                   ),
                   const SizedBox(height: 12),
-                  // Usage indicator
-                  Row(
-                    children: [
-                      Icon(
-                        isEnabled ? Icons.check_circle : Icons.block,
-                        color: isEnabled 
-                            ? CrystalGrimoireTheme.successGreen 
-                            : CrystalGrimoireTheme.errorRed,
-                        size: 20,
+                  Text(
+                    title,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: theme.colorScheme.onSurface.withOpacity(0.7),
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                  ),
+                  if (infoText != null) ...[
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: iconColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      const SizedBox(width: 8),
+                      child: Column(
+                        children: [
+                          Text(
+                            infoText!,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: iconColor,
+                            ),
+                          ),
+                          if (infoSubtext != null)
+                            Text(
+                              infoSubtext!,
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: iconColor.withOpacity(0.8),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            if (isPremium)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.amber, Colors.orange],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.star, size: 12, color: Colors.black),
+                      const SizedBox(width: 2),
                       Text(
-                        '${_dailyLimit - _dailyIdentifications} identifications remaining today',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: isEnabled 
-                              ? CrystalGrimoireTheme.successGreen
-                              : CrystalGrimoireTheme.errorRed,
-                          fontWeight: FontWeight.w600,
+                        'PRO',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _navigateToCamera() {
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const CameraScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(1.0, 0.0),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child,
-          );
-        },
-      ),
-    );
-  }
-
-  void _navigateToCollection() {
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const CollectionScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-      ),
-    );
-  }
-
-  void _navigateToJournal() {
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const JournalScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0.0, 1.0),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child,
-          );
-        },
-      ),
-    );
-  }
-
-  void _navigateToGuidance() async {
-    // Spiritual Advisor Chat requires premium tier
-    if (await UsageTracker.canAccessFeature('spiritual_advisor_chat')) {
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const MetaphysicalGuidanceScreen(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return ScaleTransition(scale: animation, child: child);
-          },
-        ),
-      );
-    } else {
-      _showUpgradeDialog('Spiritual Advisor Chat', 'premium');
-    }
-  }
-
-  void _navigateToAccount() {
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const AuthAccountScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(-1.0, 0.0),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child,
-          );
-        },
-      ),
-    );
-  }
-
-  void _navigateToSettings() {
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const SettingsScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-      ),
-    );
-  }
-
-  void _navigateToLLMLab() {
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const LLMLabScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0.0, -1.0),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child,
-          );
-        },
-      ),
-    );
-  }
-
-  void _navigateToCrystalGallery() {
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const CrystalGalleryScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: animation,
-            child: ScaleTransition(
-              scale: Tween<double>(
-                begin: 0.8,
-                end: 1.0,
-              ).animate(CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutCubic,
-              )),
-              child: child,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  void _showQuickGuide() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.8,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              CrystalGrimoireTheme.royalPurple,
-              CrystalGrimoireTheme.deepSpace,
-            ],
-          ),
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
-          ),
-        ),
-        child: Column(
-          children: [
-            Container(
-              width: 50,
-              height: 5,
-              margin: const EdgeInsets.only(top: 12),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(3),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Text(
-                'Crystal Quick Guide',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                children: [
-                  _buildQuickGuideSection(
-                    'Protection Crystals',
-                    'Black Tourmaline, Obsidian, Hematite',
-                    Icons.shield_outlined,
-                    Colors.grey[800]!,
-                  ),
-                  _buildQuickGuideSection(
-                    'Love & Relationships',
-                    'Rose Quartz, Rhodonite, Garnet',
-                    Icons.favorite_outline,
-                    CrystalGrimoireTheme.crystalRose,
-                  ),
-                  _buildQuickGuideSection(
-                    'Abundance & Success',
-                    'Citrine, Pyrite, Green Aventurine',
-                    Icons.star_outline,
-                    CrystalGrimoireTheme.celestialGold,
-                  ),
-                  _buildQuickGuideSection(
-                    'Intuition & Spirituality',
-                    'Amethyst, Labradorite, Moonstone',
-                    Icons.visibility_outlined,
-                    CrystalGrimoireTheme.amethyst,
-                  ),
-                  _buildQuickGuideSection(
-                    'Healing & Balance',
-                    'Clear Quartz, Selenite, Jade',
-                    Icons.spa_outlined,
-                    CrystalGrimoireTheme.successGreen,
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildQuickGuideSection(String title, String crystals, IconData icon, Color color) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.4)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.3),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: Colors.white, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  crystals,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+// Custom painter for ammolite/diamond sparkle effects
+class AmmoliteSparklesPainter extends CustomPainter {
+  final double progress;
+  final double intensity;
   
-  // ULTIMATE Feature Navigation Methods with Tier Restrictions
-  void _navigateToOracle() async {
-    // Crystal AI Oracle requires premium or pro tier
-    if (await UsageTracker.canAccessFeature('crystal_ai_oracle')) {
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const CrystalAIOracleScreen(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: ScaleTransition(
-                scale: Tween<double>(
-                  begin: 0.9,
-                  end: 1.0,
-                ).animate(CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutCubic,
-                )),
-                child: child,
-              ),
-            );
-          },
-        ),
+  AmmoliteSparklesPainter({
+    required this.progress,
+    required this.intensity,
+  });
+  
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..style = PaintingStyle.fill;
+    
+    final center = Offset(size.width / 2, size.height / 2);
+    final random = math.Random(42); // Fixed seed for consistent pattern
+    
+    // Draw ammolite-style shimmering particles
+    for (int i = 0; i < 15; i++) {
+      final angle = (i * 24 + progress * 360) * math.pi / 180;
+      final distance = 30 + random.nextDouble() * (size.width * 0.3);
+      final sparkleSize = 2 + random.nextDouble() * 4;
+      
+      final x = center.dx + distance * math.cos(angle);
+      final y = center.dy + distance * math.sin(angle);
+      
+      // Cycle through ammolite colors
+      final colorIndex = (progress * 3 + i * 0.3) % 1.0;
+      Color sparkleColor;
+      
+      if (colorIndex < 0.33) {
+        sparkleColor = Color.lerp(
+          const Color(0xFF20B2AA), // Teal
+          const Color(0xFFFF4500), // Red-orange
+          (colorIndex / 0.33),
+        )!;
+      } else if (colorIndex < 0.66) {
+        sparkleColor = Color.lerp(
+          const Color(0xFFFF4500), // Red-orange
+          const Color(0xFFFFD700), // Gold
+          ((colorIndex - 0.33) / 0.33),
+        )!;
+      } else {
+        sparkleColor = Color.lerp(
+          const Color(0xFFFFD700), // Gold
+          const Color(0xFF20B2AA), // Teal
+          ((colorIndex - 0.66) / 0.34),
+        )!;
+      }
+      
+      final opacity = math.sin(progress * math.pi * 2 + i * 0.5) * 0.5 + 0.5;
+      paint.color = sparkleColor.withOpacity(opacity * intensity * 0.8);
+      
+      // Draw diamond-shaped sparkle
+      final sparklePath = Path()
+        ..moveTo(x, y - sparkleSize)
+        ..lineTo(x + sparkleSize * 0.6, y)
+        ..lineTo(x, y + sparkleSize)
+        ..lineTo(x - sparkleSize * 0.6, y)
+        ..close();
+      
+      canvas.drawPath(sparklePath, paint);
+      
+      // Add center highlight
+      paint.color = Colors.white.withOpacity(opacity * intensity * 0.6);
+      canvas.drawCircle(Offset(x, y), sparkleSize * 0.3, paint);
+    }
+    
+    // Add central faceted crystal reflection
+    final reflectionPaint = Paint()
+      ..color = Colors.white.withOpacity(0.3 * intensity)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    
+    final reflectionSize = 60 + intensity * 20;
+    final reflectionPath = Path();
+    
+    // Create hexagonal faceted pattern
+    for (int i = 0; i < 6; i++) {
+      final angle = (i * 60 + progress * 30) * math.pi / 180;
+      final x = center.dx + reflectionSize * math.cos(angle);
+      final y = center.dy + reflectionSize * math.sin(angle);
+      
+      if (i == 0) {
+        reflectionPath.moveTo(x, y);
+      } else {
+        reflectionPath.lineTo(x, y);
+      }
+    }
+    reflectionPath.close();
+    
+    canvas.drawPath(reflectionPath, reflectionPaint);
+    
+    // Add internal facet lines
+    for (int i = 0; i < 6; i++) {
+      final angle = (i * 60 + progress * 30) * math.pi / 180;
+      final x = center.dx + reflectionSize * math.cos(angle);
+      final y = center.dy + reflectionSize * math.sin(angle);
+      
+      canvas.drawLine(
+        center,
+        Offset(x, y),
+        reflectionPaint..strokeWidth = 1,
       );
-    } else {
-      _showUpgradeDialog('Crystal AI Oracle', 'pro');
     }
   }
   
-  void _navigateToMoonRituals() async {
-    // Moon Ritual Planner requires pro tier
-    if (await UsageTracker.canAccessFeature('moon_ritual_planner')) {
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const MoonRitualPlannerScreen(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0.0, -1.0),
-                end: Offset.zero,
-              ).animate(CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutCubic,
-              )),
-              child: child,
-            );
-          },
-        ),
-      );
-    } else {
-      _showUpgradeDialog('Moon Ritual Planner', 'pro');
-    }
-  }
-  
-  void _navigateToDreamJournal() async {
-    // Dream Journal Analyzer requires premium tier
-    if (await UsageTracker.canAccessFeature('dream_journal_analyzer')) {
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const DreamJournalAnalyzer(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
-          },
-        ),
-      );
-    } else {
-      _showUpgradeDialog('Dream Journal Analyzer', 'premium');
-    }
-  }
-  
-  void _navigateToEnergyHealing() async {
-    // Energy Healing Sessions require pro tier
-    if (await UsageTracker.canAccessFeature('energy_healing_sessions')) {
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const CrystalEnergyHealingScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(1.0, 0.0),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child,
-          );
-        },
-      ),
-    );
-    } else {
-      _showUpgradeDialog('Energy Healing Sessions', 'pro');
-    }
-  }
-  
-  void _navigateToAstroMatcher() async {
-    // Astro Crystal Matcher requires pro tier  
-    if (await UsageTracker.canAccessFeature('astro_crystal_matcher')) {
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const AstroCrystalMatcher(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return ScaleTransition(
-              scale: Tween<double>(
-                begin: 0.5,
-                end: 1.0,
-              ).animate(CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutBack,
-            )),
-            child: child,
-          );
-        },
-      ),
-    );
-    } else {
-      _showUpgradeDialog('Astro Crystal Matcher', 'pro');
-    }
-  }
-  
-  void _navigateToSoundBath() async {
-    // Meditation Sound Bath requires premium tier
-    if (await UsageTracker.canAccessFeature('meditation_patterns')) {
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => MeditationSoundBathScreen(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0.0, 0.3),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              ),
-            );
-          },
-        ),
-      );
-    } else {
-      _showUpgradeDialog('Meditation Sound Bath', 'premium');
-    }
-  }
-  
-  void _navigateToMarketplace() {
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const CrystalMarketplace(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(-1.0, 0.0),
-              end: Offset.zero,
-            ).animate(CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeOutCubic,
-            )),
-            child: child,
-          );
-        },
-      ),
-    );
-  }
-
-  // Upgrade dialog for restricted features
-  void _showUpgradeDialog(String featureName, String requiredTier) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: CrystalGrimoireTheme.royalPurple,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            Icon(Icons.star, color: CrystalGrimoireTheme.celestialGold),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                'Unlock $featureName',
-                style: const TextStyle(color: Colors.white, fontSize: 18),
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'This powerful AI guidance feature requires ${requiredTier == 'premium' ? 'Premium' : 'Pro'} tier to access.',
-              style: const TextStyle(color: Colors.white70),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              requiredTier == 'premium' 
-                  ? '✨ Premium: \$8.99/month\n• Unlimited crystal identifications\n• AI spiritual guidance\n• Dream analysis\n• Birth chart integration'
-                  : '🚀 Pro: \$19.99/month\n• All Premium features\n• Premium AI models (GPT-4, Claude)\n• Advanced spiritual tools\n• Crystal AI Oracle\n• Priority support',
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Maybe Later', style: TextStyle(color: Colors.white70)),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _navigateToSettings(); // Navigate to subscription settings
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: CrystalGrimoireTheme.celestialGold,
-              foregroundColor: CrystalGrimoireTheme.deepSpace,
-            ),
-            child: Text('Upgrade to ${requiredTier == 'premium' ? 'Premium' : 'Pro'}'),
-          ),
-        ],
-      ),
-    );
-  }
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
