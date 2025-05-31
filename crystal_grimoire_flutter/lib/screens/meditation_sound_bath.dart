@@ -215,33 +215,57 @@ class _MeditationSoundBathScreenState extends State<MeditationSoundBathScreen>
   }
   
   Future<void> _playBowlSound() async {
-    final frequency = crystalBowlFrequencies[_selectedCrystal] ?? 440.0;
-    // In a real app, you would generate or load the appropriate sound file
-    // For now, we'll use a placeholder
-    await _bowlPlayer.play(AssetSource('sounds/bowl_${frequency.toInt()}.mp3'));
-    await _bowlPlayer.setVolume(_bowlVolume);
-    await _bowlPlayer.setReleaseMode(ReleaseMode.loop);
+    try {
+      final frequency = crystalBowlFrequencies[_selectedCrystal] ?? 440.0;
+      // In a real app, you would generate or load the appropriate sound file
+      // For now, we'll use a placeholder - only play if file exists
+      await _bowlPlayer.play(AssetSource('sounds/bowl_${frequency.toInt()}.mp3'));
+      await _bowlPlayer.setVolume(_bowlVolume);
+      await _bowlPlayer.setReleaseMode(ReleaseMode.loop);
+    } catch (e) {
+      // Handle missing audio file gracefully
+      print('Bowl sound file not found: $e');
+      // Could show a snackbar or use a default sound here
+    }
   }
   
   Future<void> _playBinauralBeats() async {
-    final frequency = chakraFrequencies[_selectedChakra] ?? 396.0;
-    // Generate binaural beats based on chakra frequency
-    await _binauralPlayer.play(AssetSource('sounds/binaural_${frequency.toInt()}.mp3'));
-    await _binauralPlayer.setVolume(_binauralVolume);
-    await _binauralPlayer.setReleaseMode(ReleaseMode.loop);
+    try {
+      final frequency = chakraFrequencies[_selectedChakra] ?? 396.0;
+      // Generate binaural beats based on chakra frequency
+      await _binauralPlayer.play(AssetSource('sounds/binaural_${frequency.toInt()}.mp3'));
+      await _binauralPlayer.setVolume(_binauralVolume);
+      await _binauralPlayer.setReleaseMode(ReleaseMode.loop);
+    } catch (e) {
+      // Handle missing audio file gracefully
+      print('Binaural beats file not found: $e');
+      // Could show a snackbar or use a default sound here
+    }
   }
   
   Future<void> _playNatureSound() async {
-    final soundFile = _selectedNatureSound.toLowerCase().replaceAll(' ', '_');
-    await _naturePlayer.play(AssetSource('sounds/nature/$soundFile.mp3'));
-    await _naturePlayer.setVolume(_natureVolume);
-    await _naturePlayer.setReleaseMode(ReleaseMode.loop);
+    try {
+      final soundFile = _selectedNatureSound.toLowerCase().replaceAll(' ', '_');
+      await _naturePlayer.play(AssetSource('sounds/nature/$soundFile.mp3'));
+      await _naturePlayer.setVolume(_natureVolume);
+      await _naturePlayer.setReleaseMode(ReleaseMode.loop);
+    } catch (e) {
+      // Handle missing audio file gracefully
+      print('Nature sound file not found: $e');
+      // Could show a snackbar or use a default sound here
+    }
   }
   
   Future<void> _playGuidedMeditation() async {
-    final meditationFile = _selectedGuidedMeditation.toLowerCase().replaceAll(' ', '_');
-    await _guidedPlayer.play(AssetSource('sounds/guided/$meditationFile.mp3'));
-    await _guidedPlayer.setVolume(_guidedVolume);
+    try {
+      final meditationFile = _selectedGuidedMeditation.toLowerCase().replaceAll(' ', '_');
+      await _guidedPlayer.play(AssetSource('sounds/guided/$meditationFile.mp3'));
+      await _guidedPlayer.setVolume(_guidedVolume);
+    } catch (e) {
+      // Handle missing audio file gracefully
+      print('Guided meditation file not found: $e');
+      // Could show a snackbar or use a default sound here
+    }
   }
   
   String _formatTime(int seconds) {

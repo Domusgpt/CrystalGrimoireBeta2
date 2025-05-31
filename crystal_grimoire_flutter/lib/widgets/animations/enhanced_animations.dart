@@ -267,19 +267,16 @@ class ParticlePainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     for (final particle in particles) {
-      // Update particle position
-      particle.y -= particle.speed * 0.01;
-      if (particle.y < 0) {
-        particle.y = 1.0;
-        particle.x = math.Random().nextDouble();
-      }
+      // Calculate position based on animation value instead of modifying particle directly
+      final currentY = (particle.y - (particle.speed * animationValue * 10)) % 1.0;
+      final currentX = particle.x;
 
       // Draw particle
       paint.color = color.withOpacity(particle.opacity);
       canvas.drawCircle(
         Offset(
-          particle.x * size.width,
-          particle.y * size.height,
+          currentX * size.width,
+          currentY * size.height,
         ),
         particle.size,
         paint,

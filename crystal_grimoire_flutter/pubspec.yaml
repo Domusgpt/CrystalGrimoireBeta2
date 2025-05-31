@@ -89,6 +89,9 @@ flutter:
     - assets/animations/
     - assets/icons/
     - assets/videos/
+    - assets/sounds/
+    - assets/sounds/nature/
+    - assets/sounds/guided/
   
   # fonts:
   #   - family: Mystical

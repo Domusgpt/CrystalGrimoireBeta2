@@ -31,13 +31,13 @@ class _EnhancedAppTitleState extends State<EnhancedAppTitle>
     
     // Sparkle animation - optimized for performance
     _sparkleController = AnimationController(
-      duration: const Duration(seconds: 4),
+      duration: const Duration(seconds: 6), // Longer duration for better performance
       vsync: this,
     )..repeat();
     
     // Color shift animation - smoother curves
     _colorController = AnimationController(
-      duration: const Duration(seconds: 5),
+      duration: const Duration(seconds: 8), // Longer duration for smoother animation
       vsync: this,
     )..repeat(reverse: true);
     
@@ -51,7 +51,7 @@ class _EnhancedAppTitleState extends State<EnhancedAppTitle>
     
     // Pulse animation - very subtle
     _pulseController = AnimationController(
-      duration: const Duration(milliseconds: 4000),
+      duration: const Duration(milliseconds: 6000), // Slower pulse for better performance
       vsync: this,
     )..repeat(reverse: true);
     
@@ -74,105 +74,111 @@ class _EnhancedAppTitleState extends State<EnhancedAppTitle>
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
+    return Stack(
+      alignment: Alignment.center,
       children: [
-        // Animated title
-        AnimatedBuilder(
-          animation: Listenable.merge([_pulseAnimation, _colorAnimation]),
-          builder: (context, child) {
-            return Transform.scale(
-              scale: _pulseAnimation.value,
-              child: ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: [
-                    _colorAnimation.value!,
-                    CrystalGrimoireTheme.mysticPurple,
-                    CrystalGrimoireTheme.cosmicViolet,
-                    _colorAnimation.value!,
-                  ],
-                  stops: const [0.0, 0.3, 0.7, 1.0],
-                ).createShader(bounds),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // Outer glow effect - much more dramatic
-                    Text(
-                      'Crystal Grimoire',
-                      style: TextStyle(
-                        fontSize: widget.fontSize,
-                        fontWeight: FontWeight.w900,
-                        fontFamily: 'serif',
-                        letterSpacing: 4.0,
-                        foreground: Paint()
-                          ..style = PaintingStyle.stroke
-                          ..strokeWidth = 8
-                          ..color = _colorAnimation.value!.withOpacity(0.8)
-                          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 30),
-                      ),
+        // Main content in a column
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Animated title
+            AnimatedBuilder(
+              animation: Listenable.merge([_pulseAnimation, _colorAnimation]),
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: _pulseAnimation.value,
+                  child: ShaderMask(
+                    shaderCallback: (bounds) => LinearGradient(
+                      colors: [
+                        _colorAnimation.value!,
+                        CrystalGrimoireTheme.mysticPurple,
+                        CrystalGrimoireTheme.cosmicViolet,
+                        _colorAnimation.value!,
+                      ],
+                      stops: const [0.0, 0.3, 0.7, 1.0],
+                    ).createShader(bounds),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Outer glow effect - much more dramatic
+                        Text(
+                          'Crystal Grimoire',
+                          style: TextStyle(
+                            fontSize: widget.fontSize,
+                            fontWeight: FontWeight.w900,
+                            fontFamily: 'serif',
+                            letterSpacing: 4.0,
+                            foreground: Paint()
+                              ..style = PaintingStyle.stroke
+                              ..strokeWidth = 8
+                              ..color = _colorAnimation.value!.withOpacity(0.8)
+                              ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 30),
+                          ),
+                        ),
+                        // Middle glow
+                        Text(
+                          'Crystal Grimoire',
+                          style: TextStyle(
+                            fontSize: widget.fontSize,
+                            fontWeight: FontWeight.w900,
+                            fontFamily: 'serif',
+                            letterSpacing: 4.0,
+                            foreground: Paint()
+                              ..style = PaintingStyle.stroke
+                              ..strokeWidth = 4
+                              ..color = Colors.white.withOpacity(0.9)
+                              ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 15),
+                          ),
+                        ),
+                        // Main text with dramatic shadows
+                        Text(
+                          'Crystal Grimoire',
+                          style: TextStyle(
+                            fontSize: widget.fontSize,
+                            fontWeight: FontWeight.w900,
+                            fontFamily: 'serif',
+                            letterSpacing: 4.0,
+                            color: Colors.white,
+                            shadows: [
+                              Shadow(
+                                color: _colorAnimation.value!,
+                                blurRadius: 25,
+                                offset: const Offset(0, 3),
+                              ),
+                              Shadow(
+                                color: CrystalGrimoireTheme.amethyst.withOpacity(0.8),
+                                blurRadius: 15,
+                                offset: const Offset(-2, -2),
+                              ),
+                              Shadow(
+                                color: CrystalGrimoireTheme.celestialGold.withOpacity(0.6),
+                                blurRadius: 10,
+                                offset: const Offset(2, 2),
+                              ),
+                              const Shadow(
+                                color: CrystalGrimoireTheme.deepSpace,
+                                blurRadius: 5,
+                                offset: Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    // Middle glow
-                    Text(
-                      'Crystal Grimoire',
-                      style: TextStyle(
-                        fontSize: widget.fontSize,
-                        fontWeight: FontWeight.w900,
-                        fontFamily: 'serif',
-                        letterSpacing: 4.0,
-                        foreground: Paint()
-                          ..style = PaintingStyle.stroke
-                          ..strokeWidth = 4
-                          ..color = Colors.white.withOpacity(0.9)
-                          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 15),
-                      ),
-                    ),
-                    // Main text with dramatic shadows
-                    Text(
-                      'Crystal Grimoire',
-                      style: TextStyle(
-                        fontSize: widget.fontSize,
-                        fontWeight: FontWeight.w900,
-                        fontFamily: 'serif',
-                        letterSpacing: 4.0,
-                        color: Colors.white,
-                        shadows: [
-                          Shadow(
-                            color: _colorAnimation.value!,
-                            blurRadius: 25,
-                            offset: const Offset(0, 3),
-                          ),
-                          Shadow(
-                            color: CrystalGrimoireTheme.amethyst.withOpacity(0.8),
-                            blurRadius: 15,
-                            offset: const Offset(-2, -2),
-                          ),
-                          Shadow(
-                            color: CrystalGrimoireTheme.celestialGold.withOpacity(0.6),
-                            blurRadius: 10,
-                            offset: const Offset(2, 2),
-                          ),
-                          const Shadow(
-                            color: CrystalGrimoireTheme.deepSpace,
-                            blurRadius: 5,
-                            offset: Offset(0, 6),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+                  ),
+                );
+              },
+            ),
+            
+            if (widget.showLogo) ...[
+              const SizedBox(height: 16),
+              // Classic diamond emoji with dramatic effects
+              _buildClassicDiamondLogo(),
+            ],
+          ],
         ),
         
-        if (widget.showLogo) ...[
-          const SizedBox(height: 16),
-          // Classic diamond emoji with dramatic effects
-          _buildClassicDiamondLogo(),
-        ],
-        
-        // Sparkle overlay
+        // Sparkle overlay - now properly positioned in Stack
         if (widget.showLogo)
           Positioned.fill(
             child: IgnorePointer(

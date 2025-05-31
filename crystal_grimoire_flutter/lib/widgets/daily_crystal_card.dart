@@ -5,6 +5,7 @@ import '../config/enhanced_theme.dart';
 import '../widgets/common/enhanced_mystical_widgets.dart';
 import '../widgets/animations/enhanced_animations.dart';
 import '../screens/crystal_gallery_screen.dart';
+import '../screens/crystal_info_screen.dart';
 
 class DailyCrystalCard extends StatefulWidget {
   const DailyCrystalCard({Key? key}) : super(key: key);
@@ -465,7 +466,7 @@ class _DailyCrystalCardState extends State<DailyCrystalCard>
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => CrystalDetailScreen(
+                                builder: (context) => CrystalInfoScreen(
                                   crystal: _dailyCrystal,
                                 ),
                               ),
